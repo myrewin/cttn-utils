@@ -1,0 +1,24 @@
+{
+  "name": "cttn_utils",
+  "version": "1.0.0",
+  "description": "Utility tools for all cttn micro services",
+  "main": "./lib/index.js",
+  "types": "./lib",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myrewin/cttn-utils.git"
+  },
+  "author": "Moses",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/myrewin/cttn-utils/issues"
+  },
+  "homepage": "https://github.com/myrewin/cttn-utils#readme",
+  "devDependencies": {
+    "typescript": "^4.7.2"
+  }
+}
