@@ -1,6 +1,6 @@
 {
-  "name": "cttn_utils",
-  "version": "1.0.0",
+  "name": "cttnutils",
+  "version": "1.0.1",
   "description": "Utility tools for all cttn micro services",
   "main": "./lib/index.js",
   "types": "./lib",
