@@ -2,8 +2,8 @@
   "name": "cttnutils",
   "version": "1.0.0",
   "description": "Utility tools for all cttn micro services",
-  "main": "./lib/index.js",
-  "types": "./lib",
+  "main": "./dist/index.js",
+  "types": "./dist",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p ./"
@@ -19,6 +19,10 @@
   },
   "homepage": "https://github.com/myrewin/cttn-utils#readme",
   "devDependencies": {
+    "@types/node": "^18.0.3",
     "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "kafkajs": "^2.1.0"
   }
 }
