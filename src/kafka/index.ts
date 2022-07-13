@@ -1,4 +1,5 @@
 import { randomUUID as uuid } from "crypto";
+
 import {
   ITopicConfig,
   Kafka,
@@ -6,6 +7,7 @@ import {
   MessageSetEntry,
   Producer,
 } from "kafkajs";
+
 import { devLog, parseJSON } from "..";
 
 const kafka = new Kafka({
