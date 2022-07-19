@@ -14,6 +14,8 @@ declare global {
       REDIS_HOST:string;
       REDIS_PORT: number;
       REDIS_PASSWORD:string
+      REDIS_URL:string;
+      APP_KEY:string
     }
   }
 }

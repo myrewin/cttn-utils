@@ -3,12 +3,16 @@ import { randomUUID as uuid } from "crypto";
 import {
   ITopicConfig,
   Kafka,
-  KafkaMessage,
   MessageSetEntry,
   Producer,
 } from "kafkajs";
+import { devLog, parseJSON } from "../utils";
 
-import { devLog, parseJSON } from "..";
+import {
+  KProducerInterface,
+  PublishEventInterface,
+  SubscriberInterface,
+} from "./interface";
 
 const kafka = new Kafka({
   brokers: [process.env.KAFKA_BROKER],
@@ -35,13 +39,7 @@ export const publishEvent = async ({
   producer,
   headers,
   token,
-}: {
-  message: Record<string, any>;
-  topic: string;
-  producer: Producer;
-  headers?: Record<string, any>;
-  token?: string;
-}): Promise<boolean> => {
+}: PublishEventInterface): Promise<boolean> => {
   try {
     await producer.connect();
 
@@ -69,29 +67,15 @@ export const publishEvent = async ({
   }
 };
 
-declare type KProducer = (config: {
-  allowAutoTopicCreation?: boolean;
-  idempotent?: boolean;
-  transactionalId?: string;
-  transactionTimeout?: number;
-}) => Producer;
+declare type KProducer = (config: KProducerInterface) => Producer;
 
-export const producer: KProducer = (config) => {
+export const producer: KProducer = (config):Producer => {
   config = config || {};
   config.idempotent = config?.idempotent || true;
   config.allowAutoTopicCreation = config?.allowAutoTopicCreation || true;
 
   return kafka.producer(config);
 };
-
-interface CttnMessageHander {
-  topic: string;
-  partition: number;
-  message: KafkaMessage;
-  getToken?: Function;
-  getValue?: Function;
-  getKey?: Function;
-}
 
 const getToken = ({ headers }: any): string =>
   headers?.authorization ? headers.authorization.toString() : null;
@@ -106,12 +90,7 @@ export const subscriber = async ({
   topic,
   fromBeginning = false,
   cb,
-}: {
-  groupId: string;
-  topic: string;
-  fromBeginning: boolean;
-  cb(obj: CttnMessageHander): Promise<void>;
-}): Promise<void> => {
+}: SubscriberInterface): Promise<void> => {
   const consumer = kafka.consumer({ groupId });
   await consumer.subscribe({ topic, fromBeginning });
   consumer.run({

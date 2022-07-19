@@ -1,8 +1,8 @@
-import { QueryTypes, Sequelize} from "sequelize";
+import { QueryTypes, Sequelize, DataTypes} from "sequelize";
 
 import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
-export const mysqlDb = new Sequelize(
+export const initDB = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USERNAME,
   process.env.DB_PASSWORD,
@@ -12,12 +12,10 @@ export const mysqlDb = new Sequelize(
   }
 );
 
-
-
-export const SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
-export const INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
-export const UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
-export const DELETE_QUERY_TYPE = { type: QueryTypes.DELETE };
+export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
+export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
+export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
+export const SQL_DELETE_QUERY_TYPE = { type: QueryTypes.DELETE };
 
 export const uuid = {
   toBinary: (uuid: string) => {

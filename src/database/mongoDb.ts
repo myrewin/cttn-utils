@@ -1,11 +1,8 @@
 import mongoose from "mongoose";
+import { devLog } from "../utils";
 
-import { devLog } from "..";
 
-export const model = mongoose.model;
-export const Schema = mongoose.Schema;
-
-export const startMongo = async () => {
+export const startMongo = async ():Promise<void>=> {
   try {
     await mongoose.connect(process.env.MONGO_URI, { autoIndex: false });
     devLog("Mongo DB is connected");
