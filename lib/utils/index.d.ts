@@ -26,13 +26,21 @@ export declare const postContent: ({ url, token, data, method, headers, }: {
     headers?: Record<string, any> | undefined;
 }) => Promise<any>;
 export declare const paginate: (totalCount: number, currentPage: number, perPage: number) => object;
-export declare const decodeJwt: (cipher: any, secreteKey: string) => Promise<unknown>;
+export declare const decodeJwt: (cipher: any, secreteKey: string) => Promise<any>;
 export declare const encodeJwt: ({ data, secreteKey, duration, }: {
     data: any;
     secreteKey: string;
     duration: string;
-}) => Promise<unknown>;
+}) => Promise<any>;
 export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;
-export declare function parseJSON(value: any): any;
+export declare function parseJSON(value: string): any;
+export declare const uuid: {
+    toBinary: (uuid: string) => object;
+    toString: (binary: any) => string;
+    mysqlBinary: (value: any) => object;
+    mysqlUUID: (field: any) => object;
+    get: () => string;
+    isValid: (uuid: string) => boolean;
+};
 //# sourceMappingURL=index.d.ts.map

@@ -244,9 +244,9 @@ declare const Redis: import("@redis/client").RedisClientType<{
         reserve: typeof import("@redis/bloom/dist/commands/top-k/RESERVE");
     };
 } & import("redis").RedisModules, import("redis").RedisFunctions, import("redis").RedisScripts>;
-export declare const setRedis: (key: any, data: any) => Promise<string | null>;
-export declare const setRedisEx: (key: any, data: any, duration: any) => Promise<string>;
+export declare const setRedis: (key: any, data: any) => Promise<any>;
+export declare const setRedisEx: (key: any, data: any, duration: any) => Promise<any>;
 export declare const getRedis: (key: any, parse?: boolean) => Promise<any>;
-export declare const delRedis: (key: any) => Promise<number | false>;
+export declare const delRedis: (key: any) => Promise<any>;
 export default Redis;
 //# sourceMappingURL=redis.d.ts.map

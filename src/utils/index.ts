@@ -1,10 +1,20 @@
 import { access, unlink, constants, mkdir } from "fs";
+
 import { Request, Response, NextFunction } from "express";
+
 import multer from "multer";
+
 import Slugify from "slugify";
+
 import Axios from "axios";
+
 import jwt from "jsonwebtoken";
+
+import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
+
 import { ValidationError } from "../errors";
+
+import {Sequelize} from 'sequelize'
 
 const fileExists = (file: any) => {
   return new Promise((resolve, reject) => {
@@ -24,7 +34,7 @@ export const shuffelWord = (word: any) => {
   return shuffledWord;
 };
 
-export const deleteFile = async (file: any):Promise<boolean> => {
+export const deleteFile = async (file: any): Promise<boolean> => {
   if (await fileExists(file)) {
     return new Promise((resolve, reject) => {
       unlink(file, (err) => {
@@ -47,7 +57,7 @@ const validate = (
   return check.value;
 };
 
-export function joiValidator(constraint: any, isMiddleware = true):any {
+export function joiValidator(constraint: any, isMiddleware = true): any {
   if (!constraint)
     throw new ValidationError(
       "Kindly supply validation schema to joiValidator"
@@ -130,7 +140,7 @@ export const uploadFile = ({
   limit?: number;
   allowedFormat?: any[];
   location?: string;
-}):any => {
+}): any => {
   /* Set storage to s3 */
   const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
@@ -245,10 +255,11 @@ export const postContent = async ({
 
     return result.data;
   } catch (err:any) {
-    throw err.response
-      ? { ...err.response.data, httpStatusCode: err.response.status } ||
-          err.response
-      : err;
+    if(err){
+      if(err.response){
+        throw  { ...err.response.data, httpStatusCode: err.response.status } || err.response
+      }else throw err
+    }
   }
 };
 
@@ -256,7 +267,7 @@ export const paginate = (
   totalCount: number,
   currentPage: number,
   perPage: number
-):object => {
+): object => {
   const previousPage = currentPage - 1;
   return {
     pageCount: Math.ceil(totalCount / perPage),
@@ -264,7 +275,7 @@ export const paginate = (
   };
 };
 
-export const decodeJwt = (cipher: any, secreteKey: string) => {
+export const decodeJwt = (cipher: any, secreteKey: string):Promise<any>=> {
   const token = cipher.split(" ").pop();
   return new Promise((ful, rej) => {
     if (!secreteKey) return rej(new Error("Kindly supply secret key"));
@@ -283,7 +294,7 @@ export const encodeJwt = ({
   data: any;
   secreteKey: string;
   duration: string;
-}) => {
+}):Promise<any> => {
   return new Promise((ful, rej) => {
     if (!secreteKey) return rej(new Error("Kindly supply secret key"));
     jwt.sign(data, secreteKey, { expiresIn: duration }, (err, token) => {
@@ -292,7 +303,6 @@ export const encodeJwt = ({
     });
   });
 };
-
 
 export function globalErrorHandler(err: Error): void {
   console.log("=======Unhandled error=======/n/n", err);
@@ -309,10 +319,42 @@ export function devLog(...keys: any): void {
   }
 }
 
-export function parseJSON(value: any): any {
+export function parseJSON(value: string): any {
   try {
     return JSON.parse(value);
   } catch (err) {
-    return value;
+    return err;
   }
+}
+
+export const uuid = {
+  toBinary: (uuid: string):object => {
+    if (!uuid) uuid = uuidV1();
+    else if (typeof uuid !== "string" && Buffer.isBuffer(uuid)) return uuid;
+    const buf = Buffer.from(uuid.replace(/-/g, ""), "hex");
+    return Buffer.concat([
+      buf.subarray(6, 8),
+      buf.subarray(4, 6),
+      buf.subarray(0, 4),
+      buf.subarray(8, 16),
+    ]);
+  },
+  toString: (binary: any):string => {
+    if (!binary) throw new Error("Kindly supply binary UUID value");
+    if (typeof binary === "string") return binary;
+    return [
+      binary.toString("hex", 4, 8),
+      binary.toString("hex", 2, 4),
+      binary.toString("hex", 0, 2),
+      binary.toString("hex", 8, 10),
+      binary.toString("hex", 10, 16),
+    ].join("-");
+  },
+  mysqlBinary: (value: any):object => Sequelize.fn("UUID_TO_BIN", value, 1),
+  mysqlUUID: (field: any):object => [
+    Sequelize.fn("BIN_TO_UUID", Sequelize.col(field), 1),
+    field,
+  ],
+  get: ():string => uuidV1(),
+  isValid: (uuid: string):boolean => UUIDValidaton(uuid),
 }

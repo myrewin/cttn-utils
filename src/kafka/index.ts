@@ -6,6 +6,7 @@ import {
   MessageSetEntry,
   Producer,
 } from "kafkajs";
+
 import { devLog, parseJSON } from "../utils";
 
 import {
@@ -80,8 +81,9 @@ export const producer: KProducer = (config):Producer => {
 const getToken = ({ headers }: any): string =>
   headers?.authorization ? headers.authorization.toString() : null;
 
-const getValue = ({ value }: MessageSetEntry): Record<string, any> =>
-  parseJSON(value?.toString());
+const getValue = ({ value }: MessageSetEntry): any =>{
+  if(value) return parseJSON(value.toString());
+}
 
 const getKey = ({ key }: MessageSetEntry): any => key?.toString();
 

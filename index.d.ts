@@ -1,10 +1,9 @@
 import { KafkaMessage, Producer } from "kafkajs";
-import mongoose, { Model, Mongoose } from "mongoose";
-import { QueryTypes, Sequelize, DataTypes } from "sequelize/types";
+import {Schema, model} from 'mongoose'
+import {Sequelize, DataTypes} from 'sequelize'
 
 //Kafka
 export declare const startKafka: (topics: Array<string>) => Promise<void>;
-export declare const uuid: () => any;
 export declare const publishEvent: (obj: {
   message: Record<string, any>;
   topic: string;
@@ -18,6 +17,7 @@ export declare const producer: (config: {
   transactionalId?: string;
   transactionTimeout?: number;
 }) => Producer;
+
 export declare const subscriber: (obj: {
   groupId: string;
   topic: string;
@@ -26,20 +26,19 @@ export declare const subscriber: (obj: {
     topic: string;
     partition: number;
     message: KafkaMessage;
-    getToken?: Function;
     getValue?: Function;
-    getKey?: Function;
   }): Promise<void>;
 }) => Promise<void>;
 
 //Database
-export const mongoDbModel = mongoose.model;
-export const mongoDbSchema = mongoose.Schema;
+export const mongoDbModel = model;
+export declare const mongoStart =()=>Promise<void>
+export const mongoDbSchema = Schema;
 export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
 export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
 export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
 export const SQL_DELETE_QUERY_TYPE = { type: QueryTypes.DELETE };
-export const initSqlDB = Sequelize;
+export const SQL_initDb = Sequelize;
 export const SQL_DataTypes = DataTypes;
 
 //Utils
@@ -74,16 +73,34 @@ export const paginate: (
 ) => { pageCount: number; offset: number };
 export const joiValidator: (constraint: any, isMiddleware: boolean) => any;
 export const deleteFile: (file: any) => boolean;
+export declare const decodeJwt: (
+  cipher: string,
+  secreteKey: string
+) => Promise<any>;
+
+export declare const encodeJwt: (obj: {
+  data: any;
+  secreteKey: string;
+  duration: string | number;
+}) => Promise<any>;
 
 //Redis
-export declare const setRedis: (key: any, data: any) => Promise<any>;
+export declare const setRedis: (key: any, data: any) => Promise<string>;
 export declare const setRedisEx: (
   key: any,
   data: any,
   duration: any
-) => Promise<any>;
+) => Promise<string>;
 export declare const getRedis: (key: any) => Promise<any>;
 export declare const delRedis: (key: any) => Promise<any>;
+export declare const uuid: {
+  toBinary: (uuid: string) => object;
+  toString: (binary: any) => string;
+  mysqlBinary: (value: any) => object;
+  mysqlUUID: (field: any) => object;
+  get: () => string;
+  isValid: (uuid: string) => boolean;
+};
 
 //Errors
 export class InvalidTokenError extends Error {}
