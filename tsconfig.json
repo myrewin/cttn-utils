@@ -6,12 +6,12 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist",
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "outDir": "./lib",
     "strict": true,
     "skipLibCheck": true,
     "typeRoots": ["./src/types"]
   },
-  "include": ["src"]
+  "include": ["src","index.d.ts"],
+  "exclude": ["node_modules"]
 }
