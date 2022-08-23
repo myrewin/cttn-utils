@@ -5,11 +5,11 @@
   "main": "./dist/index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "",
     "build": "tsc -p ./"
   },
   "publishConfig": {
-    "registry": "http://"
+    "registry": "http://npm.pkg.github.com/@myrewin"
   },
   "repository": {
     "type": "git",
