@@ -1,22 +1,14 @@
 import { access, unlink, constants, mkdir } from "fs";
-
 import { Request, Response, NextFunction } from "express";
-
 import multer from "multer";
-
 import Slugify from "slugify";
-
 import Axios from "axios";
-
 import jwt from "jsonwebtoken";
-
 import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
+import { HTTP_STATUS_CODE_ERROR, ValidationError } from "../errors";
+import { Sequelize } from "sequelize";
 
-import { ValidationError } from "../errors";
-
-import {Sequelize} from 'sequelize'
-
-const fileExists = (file: any) => {
+export const fileExists = (file: any) => {
   return new Promise((resolve, reject) => {
     access(file, constants.F_OK, (err) => {
       if (err) resolve(false);
@@ -101,13 +93,13 @@ export function joiValidator(constraint: any, isMiddleware = true): any {
   };
 }
 
-const randomString = (N = 10) => {
+export const randomString = (N = 10) => {
   return Array(N + 1)
     .join((Math.random().toString(36) + "00000000000000000").slice(2, 18))
     .slice(0, N);
 };
 
-const uniqueString = (capitalize = false): string => {
+export const uniqueString = (capitalize = false): string => {
   const now = Array.from(Date.now().toString());
   let result = "";
   for (let i = 0; i < now.length; i++) {
@@ -117,7 +109,7 @@ const uniqueString = (capitalize = false): string => {
   return capitalize ? result.toUpperCase() : result;
 };
 
-const createPath = (path: any) =>
+export const createPath = (path: any) =>
   new Promise((ful, rej) => {
     fileExists(path)
       .then((exists) => {
@@ -221,7 +213,7 @@ export const getContent = async ({
     const result = await Axios(payload);
 
     return result.data;
-  } catch (err:any) {
+  } catch (err: any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -254,11 +246,14 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err:any) {
-    if(err){
-      if(err.response){
-        throw  { ...err.response.data, httpStatusCode: err.response.status } || err.response
-      }else throw err
+  } catch (err: any) {
+    if (err) {
+      if (err.response) {
+        throw (
+          { ...err.response.data, httpStatusCode: err.response.status } ||
+          err.response
+        );
+      } else throw err;
     }
   }
 };
@@ -275,7 +270,7 @@ export const paginate = (
   };
 };
 
-export const decodeJwt = (cipher: any, secreteKey: string):Promise<any>=> {
+export const decodeJwt = (cipher: any, secreteKey: string): Promise<any> => {
   const token = cipher.split(" ").pop();
   return new Promise((ful, rej) => {
     if (!secreteKey) return rej(new Error("Kindly supply secret key"));
@@ -294,7 +289,7 @@ export const encodeJwt = ({
   data: any;
   secreteKey: string;
   duration: string;
-}):Promise<any> => {
+}): Promise<any> => {
   return new Promise((ful, rej) => {
     if (!secreteKey) return rej(new Error("Kindly supply secret key"));
     jwt.sign(data, secreteKey, { expiresIn: duration }, (err, token) => {
@@ -328,7 +323,7 @@ export function parseJSON(value: string): any {
 }
 
 export const uuid = {
-  toBinary: (uuid: string):object => {
+  toBinary: (uuid: string): object => {
     if (!uuid) uuid = uuidV1();
     else if (typeof uuid !== "string" && Buffer.isBuffer(uuid)) return uuid;
     const buf = Buffer.from(uuid.replace(/-/g, ""), "hex");
@@ -339,7 +334,7 @@ export const uuid = {
       buf.subarray(8, 16),
     ]);
   },
-  toString: (binary: any):string => {
+  toString: (binary: any): string => {
     if (!binary) throw new Error("Kindly supply binary UUID value");
     if (typeof binary === "string") return binary;
     return [
@@ -350,11 +345,41 @@ export const uuid = {
       binary.toString("hex", 10, 16),
     ].join("-");
   },
-  mysqlBinary: (value: any):object => Sequelize.fn("UUID_TO_BIN", value, 1),
-  mysqlUUID: (field: any):object => [
+  mysqlBinary: (value: any): object => Sequelize.fn("UUID_TO_BIN", value, 1),
+  mysqlUUID: (field: any): object => [
     Sequelize.fn("BIN_TO_UUID", Sequelize.col(field), 1),
     field,
   ],
-  get: ():string => uuidV1(),
-  isValid: (uuid: string):boolean => UUIDValidaton(uuid),
-}
+  get: (): string => uuidV1(),
+  isValid: (uuid: string): boolean => UUIDValidaton(uuid),
+};
+
+export const errorMessage = (err: any = void 0, ERROR_TYPE = "FATAL_ERROR") => {
+  let message: string;
+  if (err && err.errors)
+    message = err.errors[0] ? err.errors[0].message : "Something went wrong.";
+  else if (err && err.message) message = err.message;
+  else if (typeof err == "string") message = err;
+  else message = "Something went wrong";
+
+  if (process.env.NODE_ENV !== "production") devLog(err);
+
+  const response: any = { success: false, message };
+  response.error =
+    err.name || HTTP_STATUS_CODE_ERROR[err.httpStatusCode] || ERROR_TYPE;
+  if (err.httpStatusCode) response.httpStatusCode = err.httpStatusCode;
+  response.service =
+    err.service || process.env.APP_NAME || process.env.SERVICE_NAME;
+
+  if (err.isAxiosError) {
+    response.message = err.response.data.message || "Something went wrong";
+    response.httpStatusCode =
+      err.response.data.httpStatusCode || err.response.status;
+    response.error =
+      err.response.data.error ||
+      HTTP_STATUS_CODE_ERROR[response.httpStatusCode] ||
+      ERROR_TYPE;
+  }
+
+  return response;
+};
