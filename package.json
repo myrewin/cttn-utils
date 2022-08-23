@@ -2,7 +2,7 @@
   "name": "cttnutils",
   "version": "1.0.0",
   "description": "Utility tools for all cttn micro services",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "types": "./index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

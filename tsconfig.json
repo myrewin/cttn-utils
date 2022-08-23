@@ -7,11 +7,11 @@
     "declarationMap": true,
     "sourceMap": true,
     "esModuleInterop": true,
-    "outDir": "./lib",
+    "outDir": "./dist",
     "strict": true,
     "skipLibCheck": true,
     "typeRoots": ["./src/types"]
   },
-  "include": ["src","index.d.ts"],
+  "include": ["src", "index.d.ts"],
   "exclude": ["node_modules"]
 }
