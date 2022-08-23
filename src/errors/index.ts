@@ -1,3 +1,5 @@
+import { devLog } from "../utils/index.js";
+
 export class ValidationError extends Error {
   httpStatusCode: number;
   constructor(message: string) {
@@ -107,35 +109,32 @@ export const customErrorMessage = ({
   return response;
 };
 
-export const errorMessage = ({
-  err = void 0,
-  ERROR_TYPE = "FATAL_ERROR",
-}: {
-  err: any;
-  ERROR_TYPE: string;
-}) => {
-  let message;
+export const errorMessage = (err: any = void 0, ERROR_TYPE = "FATAL_ERROR") => {
+  let message: string;
   if (err && err.errors)
     message = err.errors[0] ? err.errors[0].message : "Something went wrong.";
   else if (err && err.message) message = err.message;
   else if (typeof err == "string") message = err;
   else message = "Something went wrong";
 
-  if (process.env.NODE_ENV !== "production") {
-    console.log("=======================================");
-    console.log(err);
-    console.log("=======================================");
-  }
-  const response:any = { success: false, message };
+  if (process.env.NODE_ENV !== "production") devLog(err);
+
+  const response: any = { success: false, message };
   response.error =
-    err.name || err.HTTP_STATUS_CODE_ERROR[err.httpStatusCode] || ERROR_TYPE;
+    err.name || HTTP_STATUS_CODE_ERROR[err.httpStatusCode] || ERROR_TYPE;
   if (err.httpStatusCode) response.httpStatusCode = err.httpStatusCode;
   response.service =
     err.service || process.env.APP_NAME || process.env.SERVICE_NAME;
+
+  if (err.isAxiosError) {
+    response.message = err.response.data.message || "Something went wrong";
+    response.httpStatusCode =
+      err.response.data.httpStatusCode || err.response.status;
+    response.error =
+      err.response.data.error ||
+      HTTP_STATUS_CODE_ERROR[response.httpStatusCode] ||
+      ERROR_TYPE;
+  }
+
   return response;
 };
-
-
-module.exports = {
-    InvalidTokenError, TokenExpiredError, AuthenticationError, AuthorizationError,EntryExistError, EntryNotFoundError,ValidationError, PaymentRequiredError, HTTP_STATUS_CODE_ERROR
-}
