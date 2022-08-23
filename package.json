@@ -1,5 +1,5 @@
 {
-  "name": "cttnutils",
+  "name": "cttn-utils",
   "version": "1.0.0",
   "description": "Utility tools for all cttn micro services",
   "main": "./dist/index.js",
@@ -7,6 +7,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p ./"
+  },
+  "publishConfig": {
+    "registry": "http://"
   },
   "repository": {
     "type": "git",
