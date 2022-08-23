@@ -1,12 +1,12 @@
 import { randomUUID as uuid } from "crypto";
 import { ITopicConfig, Kafka, MessageSetEntry, Producer } from "kafkajs";
-import { devLog, parseJSON } from "../utils";
+import { devLog, parseJSON } from "../utils/index.js";
 
 import {
   KProducerInterface,
   PublishEventInterface,
   SubscriberInterface,
-} from "./interface";
+} from "./interface.js";
 
 export const kafka = new Kafka({
   brokers: [process.env.KAFKA_BROKER],
