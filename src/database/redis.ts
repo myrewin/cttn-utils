@@ -2,11 +2,13 @@ import { createClient } from "redis";
 import { ValidationError } from "../errors/index.js";
 import { parseJSON } from "../utils/index.js";
 
-export const Redis = createClient({
+const Redis = createClient({
   url: `redis://:${process.env.REDIS_PASSWORD || ""}@${
     process.env.REDIS_HOST
   }:${process.env.REDIS_PORT}`,
 });
+
+export const startRedis = async (): Promise<void> => await Redis.connect();
 
 export const setRedis = async (key: string, data: any): Promise<any> => {
   if (!key || typeof key === "string")
@@ -45,5 +47,3 @@ export const delRedis = async (key: string): Promise<boolean> => {
 
   return Boolean(await Redis.del(key));
 };
-
-export default Redis;
