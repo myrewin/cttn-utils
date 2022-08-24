@@ -1,6 +1,6 @@
 import { KafkaMessage, Producer } from "kafkajs";
-import {Schema, model} from 'mongoose'
-import {Sequelize, DataTypes} from 'sequelize'
+import { Schema, model } from "mongoose";
+import { Sequelize, DataTypes } from "sequelize";
 
 //Kafka
 export declare const startKafka: (topics: Array<string>) => Promise<void>;
@@ -32,7 +32,7 @@ export declare const subscriber: (obj: {
 
 //Database
 export const mongoDbModel = model;
-export declare const mongoStart =()=>Promise<void>
+export declare const mongoStart = () => Promise<void>;
 export const mongoDbSchema = Schema;
 export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
 export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
@@ -85,6 +85,7 @@ export declare const encodeJwt: (obj: {
 }) => Promise<any>;
 
 //Redis
+export declare const startRedis: () => Promise<void>;
 export declare const setRedis: (key: any, data: any) => Promise<string>;
 export declare const setRedisEx: (
   key: any,
@@ -93,6 +94,7 @@ export declare const setRedisEx: (
 ) => Promise<string>;
 export declare const getRedis: (key: any) => Promise<any>;
 export declare const delRedis: (key: any) => Promise<any>;
+
 export declare const uuid: {
   toBinary: (uuid: string) => object;
   toString: (binary: any) => string;

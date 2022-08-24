@@ -1,12 +1,12 @@
 import { access, unlink, constants, mkdir } from "fs";
 import { Request, Response, NextFunction } from "express";
+import { Sequelize } from "sequelize";
 import multer from "multer";
 import Slugify from "slugify";
 import Axios from "axios";
 import jwt from "jsonwebtoken";
 import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
-import { HTTP_STATUS_CODE_ERROR, ValidationError } from "../errors";
-import { Sequelize } from "sequelize";
+import { ValidationError } from "../errors/index.js";
 
 export const fileExists = (file: any) => {
   return new Promise((resolve, reject) => {

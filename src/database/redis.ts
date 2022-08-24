@@ -10,24 +10,24 @@ const Redis = createClient({
 
 export const startRedis = async (): Promise<void> => await Redis.connect();
 
-export const setRedis = async (key: string, data: any): Promise<any> => {
+export const setRedis = async (key: string, data: any): Promise<boolean> => {
   if (!key || typeof key === "string")
     throw new ValidationError("Redis key must be a string");
 
   if (typeof data === "object") data = JSON.stringify(data);
-  return await Redis.set(key, data);
+  return Boolean(await Redis.set(key, data));
 };
 
 export const setRedisEx = async (
   key: string,
   data: any,
   duration: number
-): Promise<any> => {
+): Promise<boolean> => {
   if (!key || typeof key === "string")
     throw new ValidationError("Redis key must be a string");
 
   if (typeof data === "object") data = JSON.stringify(data);
-  return await Redis.setEx(key, duration, data);
+  return Boolean(await Redis.setEx(key, duration, data));
 };
 
 export const getRedis = async (
