@@ -35,12 +35,12 @@ export declare const subscriber: (obj: {
 }) => Promise<void>;
 
 //Database
-// export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
-// export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
-// export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
-// export const SQL_DELETE_QUERY_TYPE = { type: QueryTypes.DELETE };
-// export const SQL_initDb = Sequelize;
-// export const SQL_DataTypes = DataTypes;
+export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
+export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
+export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
+export const SQL_DELETE_QUERY_TYPE = { type: QueryTypes.DELETE };
+export const SQL_initDb = Sequelize;
+export const SQL_DataTypes = DataTypes;
 
 //Utils
 export declare function parseJSON(value: any): any;
