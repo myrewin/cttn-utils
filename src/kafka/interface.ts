@@ -24,7 +24,7 @@ interface CttnMessageHander {
   getKey?: Function;
 }
 
-export interface SubscriberInterface{
+export interface SubscriberInterface {
   groupId: string;
   topic: string;
   fromBeginning: boolean;
