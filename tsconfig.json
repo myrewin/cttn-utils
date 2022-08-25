@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "commonjs",
+    "target": "ES2022",
+    "module": "ES2022",
     "moduleResolution": "node",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./dist",
     "strict": true,
     "skipLibCheck": true,
-    "typeRoots": ["./src/types"]
+    "typeRoots": ["./src/types"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "rootDir": "src",
+    "allowSyntheticDefaultImports": true,
   },
   "include": ["src", "index.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/*.test.ts"]
 }

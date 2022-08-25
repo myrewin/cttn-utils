@@ -1,5 +1,6 @@
 import { ITopicConfig, KafkaMessage, Producer } from "kafkajs";
 import { Schema, model } from "mongoose";
+
 import { Sequelize, DataTypes } from "sequelize";
 
 //Kafka
@@ -9,7 +10,7 @@ export declare const publishEvent: (obj: {
   topic: string;
   producer: Producer;
   headers?: Record<string, any>;
-  token?: string;
+  token?: string
 }) => Promise<boolean>;
 export declare const producer: (config: {
   allowAutoTopicCreation?: boolean;
@@ -105,6 +106,16 @@ export declare const uuid: {
   get: () => string;
   isValid: (uuid: string) => boolean;
 };
+
+export declare const fileManager: {
+  upload:()=>Promise<any>;
+  uploadBase64:(file:any)=>Promise<string>;
+  remove:(fileUrl:string)=>Promise<void>
+  resizeImage:(fileUrl:string, height:number)=>Promise<AxiosResponse>;
+  exists:(fileUrl:string)=>Promise<AxiosResponse>;
+  url:(relativeUrl: string)=>Promise<string>;
+  
+}
 
 //Errors
 export class InvalidTokenError extends Error {}
