@@ -4,8 +4,8 @@ name: Package publisher
 
 on:
   push:
-    branches: [ "master" ]
-    
+    branches: ["master"]
+
 jobs:
   publish-gpr:
     runs-on: ubuntu-latest
@@ -15,15 +15,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          registry-url: https://npm.pkg.github.com/
-          scope: '@myrewin'
+          registry-url: https://npm.pkg.github.com
+          scope: "@myrewin"
 
       - name: install dependencies
         run: npm ci
 
       - name: Build package
         run: npm run build
-        
+
       - name: Publish package
         run: npm publish
         env:
