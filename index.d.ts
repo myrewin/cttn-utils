@@ -1,9 +1,9 @@
-import { KafkaMessage, Producer } from "kafkajs";
+import { ITopicConfig, KafkaMessage, Producer } from "kafkajs";
 import { Schema, model } from "mongoose";
 import { Sequelize, DataTypes } from "sequelize";
 
 //Kafka
-export declare const startKafka: (topics: Array<string>) => Promise<void>;
+export declare const startKafka: (topics: Array<ITopicConfig>) => Promise<void>;
 export declare const publishEvent: (obj: {
   message: Record<string, any>;
   topic: string;
@@ -23,10 +23,12 @@ export declare const subscriber: (obj: {
   topic: string;
   fromBeginning: boolean;
   cb(obj: {
-    topic: string;
-    partition: number;
+    topic?: string;
+    partition?: number;
     message: KafkaMessage;
     getValue?: Function;
+    getToken?: Function;
+    getKey?: Function;
   }): Promise<void>;
 }) => Promise<void>;
 
