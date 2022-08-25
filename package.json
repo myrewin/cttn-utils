@@ -1,18 +1,21 @@
 {
-  "name": "cttnutils",
-  "version": "1.0.0",
+  "name": "@myrewin/cttn-utils",
+  "version": "1.0.5",
   "description": "Utility tools for all cttn micro services",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "",
     "build": "tsc -p ./"
+  },
+  "publishConfig": {
+    "registry": "http://npm.pkg.github.com/@myrewin"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/myrewin/cttn-utils.git"
+    "url": "https://github.com/myrewin/cttn-utils.git"
   },
-  "author": "Moses",
+  "author": "Contentionary Devs",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/myrewin/cttn-utils/issues"
@@ -23,6 +26,7 @@
     "@types/jsonwebtoken": "^8.5.8",
     "@types/multer": "^1.4.7",
     "@types/node": "^18.0.3",
+    "@types/request": "^2.48.8",
     "@types/sequelize": "^4.28.14",
     "@types/uuid": "^8.3.4",
     "express": "^4.18.1",
@@ -37,6 +41,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^2.3.3",
     "redis": "^4.2.0",
+    "request": "^2.88.2",
     "sequelize": "^6.21.2",
     "slugify": "^1.6.5",
     "uuid": "^8.3.2"

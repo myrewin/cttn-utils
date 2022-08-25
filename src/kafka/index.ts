@@ -1,21 +1,14 @@
 import { randomUUID as uuid } from "crypto";
-
-import {
-  ITopicConfig,
-  Kafka,
-  MessageSetEntry,
-  Producer,
-} from "kafkajs";
-
-import { devLog, parseJSON } from "../utils";
+import { ITopicConfig, Kafka, MessageSetEntry, Producer } from "kafkajs";
+import { devLog, parseJSON } from "../utils/index.js";
 
 import {
   KProducerInterface,
   PublishEventInterface,
   SubscriberInterface,
-} from "./interface";
+} from "./interface.js";
 
-const kafka = new Kafka({
+export const kafka = new Kafka({
   brokers: [process.env.KAFKA_BROKER],
   sasl: {
     mechanism: "scram-sha-256",
@@ -70,7 +63,7 @@ export const publishEvent = async ({
 
 declare type KProducer = (config: KProducerInterface) => Producer;
 
-export const producer: KProducer = (config):Producer => {
+export const producer: KProducer = (config): Producer => {
   config = config || {};
   config.idempotent = config?.idempotent || true;
   config.allowAutoTopicCreation = config?.allowAutoTopicCreation || true;
@@ -81,9 +74,9 @@ export const producer: KProducer = (config):Producer => {
 const getToken = ({ headers }: any): string =>
   headers?.authorization ? headers.authorization.toString() : null;
 
-const getValue = ({ value }: MessageSetEntry): any =>{
-  if(value) return parseJSON(value.toString());
-}
+const getValue = ({ value }: MessageSetEntry): any => {
+  if (value) return parseJSON(value.toString());
+};
 
 const getKey = ({ key }: MessageSetEntry): any => key?.toString();
 

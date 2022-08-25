@@ -1,4 +1,4 @@
-import { QueryTypes, Sequelize, DataTypes} from "sequelize";
+import { QueryTypes, Sequelize } from "sequelize";
 
 export const SQL_initDb = new Sequelize(
   process.env.DB_NAME,
@@ -15,4 +15,4 @@ export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
 export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
 export const SQL_DELETE_QUERY_TYPE = { type: QueryTypes.DELETE };
 
-export const SQL_DataTypes = DataTypes;
+export { DataTypes, Op } from "sequelize";
