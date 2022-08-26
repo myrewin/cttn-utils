@@ -8,7 +8,7 @@ export class ValidationError extends Error {
     this.httpStatusCode = 400;
   }
 }
-export class EntryExistError extends Error {
+export class ExistError extends Error {
   httpStatusCode: number;
   constructor(message: string) {
     super(message);
@@ -17,7 +17,7 @@ export class EntryExistError extends Error {
   }
 }
 
-export class EntryNotFoundError extends Error {
+export class NotFoundError extends Error {
   httpStatusCode: number;
   constructor(message: string) {
     super(message);
