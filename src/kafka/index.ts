@@ -1,5 +1,11 @@
 import { randomUUID as uuid } from "crypto";
-import { ITopicConfig, Kafka, MessageSetEntry, Producer } from "kafkajs";
+import {
+  ITopicConfig,
+  Kafka,
+  MessageSetEntry,
+  Producer,
+  Partitioners,
+} from "kafkajs";
 import { devLog, parseJSON } from "../utils/index.js";
 
 import {
@@ -68,7 +74,10 @@ export const producer: KProducer = (config): Producer => {
   config.idempotent = config?.idempotent || true;
   config.allowAutoTopicCreation = config?.allowAutoTopicCreation || true;
 
-  return kafka.producer(config);
+  return kafka.producer({
+    ...config,
+    createPartitioner: Partitioners.DefaultPartitioner,
+  });
 };
 
 const getToken = ({ headers }: any): string =>
