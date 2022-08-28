@@ -15,7 +15,8 @@ export const setRedis = async (key: string, data: any): Promise<boolean> => {
   if (!key || typeof key !== "string")
     throw new ValidationError("Redis key must be a string");
 
-  if (typeof data === "object") data = JSON.stringify(data);
+  if (typeof data !== "number" || typeof data !== "string")
+    data = JSON.stringify(data);
   return Boolean(await Redis.set(key, data));
 };
 
@@ -27,7 +28,8 @@ export const setRedisEx = async (
   if (!key || typeof key !== "string")
     throw new ValidationError("Redis key must be a string");
 
-  if (typeof data === "object") data = JSON.stringify(data);
+  if (typeof data !== "number" || typeof data !== "string")
+    data = JSON.stringify(data);
   return Boolean(await Redis.setEx(key, duration, data));
 };
 
