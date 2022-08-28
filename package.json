@@ -1,10 +1,9 @@
 {
   "name": "@myrewin/cttn-utils",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Utility tools for all cttn micro services",
-  "main": "./dist/index.js",
-  "types": "./index.d.ts",
-  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist",
   "scripts": {
     "test": "jest --watchAll --detectOpenHandles",
     "build": "tsc -p ./"
