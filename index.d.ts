@@ -32,10 +32,6 @@ export declare const subscriber: (obj: {
   }): Promise<void>;
 }) => Promise<void>;
 
-//Database
-export const mongoDbModel = model;
-export declare const mongoStart = () => Promise<void>;
-export const mongoDbSchema = Schema;
 export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
 export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
 export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
