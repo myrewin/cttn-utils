@@ -16,8 +16,8 @@ export interface KProducerInterface {
 }
 
 interface CttnMessageHander {
-  topic: string;
-  partition: number;
+  topic?: string;
+  partition?: number;
   message: KafkaMessage;
   getToken?: Function;
   getValue?: Function;

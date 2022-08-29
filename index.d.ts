@@ -1,17 +1,17 @@
-import { AxiosResponse } from "axios";
+import { KafkaMessage, Producer } from "kafkajs";
 
-import { ITopicConfig, KafkaMessage, Producer } from "kafkajs";
+import { Schema, model } from "mongoose";
 
 import { Sequelize, DataTypes } from "sequelize";
 
 //Kafka
-export declare const startKafka: (topics: Array<ITopicConfig>) => Promise<void>;
+export declare const startKafka: (topics: Array<string>) => Promise<void>;
 export declare const publishEvent: (obj: {
   message: Record<string, any>;
   topic: string;
   producer: Producer;
   headers?: Record<string, any>;
-  token?: string
+  token?: string;
 }) => Promise<boolean>;
 export declare const producer: (config: {
   allowAutoTopicCreation?: boolean;
@@ -29,12 +29,13 @@ export declare const subscriber: (obj: {
     partition?: number;
     message: KafkaMessage;
     getValue?: Function;
-    getToken?: Function;
-    getKey?: Function;
   }): Promise<void>;
 }) => Promise<void>;
 
 //Database
+export const mongoDbModel = model;
+export declare const mongoStart = () => Promise<void>;
+export const mongoDbSchema = Schema;
 export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
 export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
 export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };
@@ -104,16 +105,6 @@ export declare const uuid: {
   get: () => string;
   isValid: (uuid: string) => boolean;
 };
-
-export declare const fileManager: {
-  upload:()=>Promise<any>;
-  uploadBase64:(file:any)=>Promise<string>;
-  remove:(fileUrl:string)=>Promise<void>
-  resizeImage:(fileUrl:string, height:number)=>Promise<AxiosResponse>;
-  exists:(fileUrl:string)=>Promise<AxiosResponse>;
-  url:(relativeUrl: string)=>Promise<string>;
-  
-}
 
 //Errors
 export class InvalidTokenError extends Error {}
