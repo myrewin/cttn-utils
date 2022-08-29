@@ -1,4 +1,5 @@
 import { createClient } from "redis";
+
 import { ValidationError } from "../errors/index.js";
 import { parseJSON } from "../utils/index.js";
 
@@ -10,26 +11,26 @@ const Redis = createClient({
 
 export const startRedis = async (): Promise<void> => await Redis.connect();
 
-export const setRedis = async (key: string, data: any): Promise<boolean> => {
+export const setRedis = async (key: string, data: any): Promise<any> => {
   if (!key || typeof key !== "string")
     throw new ValidationError("Redis key must be a string");
 
   if (typeof data !== "number" || typeof data !== "string")
     data = JSON.stringify(data);
-  return Boolean(await Redis.set(key, data));
+  return await Redis.set(key, data);
 };
 
 export const setRedisEx = async (
   key: string,
   data: any,
   duration: number
-): Promise<boolean> => {
+): Promise<any> => {
   if (!key || typeof key !== "string")
     throw new ValidationError("Redis key must be a string");
 
   if (typeof data !== "number" || typeof data !== "string")
     data = JSON.stringify(data);
-  return Boolean(await Redis.setEx(key, duration, data));
+  return await Redis.setEx(key,duration, data);
 };
 
 export const getRedis = async (

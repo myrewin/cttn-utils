@@ -16,6 +16,7 @@ declare global {
       REDIS_PASSWORD:string
       REDIS_URL:string;
       APP_KEY:string
+      FILE_MANAGER_URL:string
     }
   }
 }

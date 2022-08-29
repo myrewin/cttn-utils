@@ -1,5 +1,7 @@
 import { KafkaMessage, Producer } from "kafkajs";
+
 import { Schema, model } from "mongoose";
+
 import { Sequelize, DataTypes } from "sequelize";
 
 //Kafka
@@ -23,17 +25,13 @@ export declare const subscriber: (obj: {
   topic: string;
   fromBeginning: boolean;
   cb(obj: {
-    topic: string;
-    partition: number;
+    topic?: string;
+    partition?: number;
     message: KafkaMessage;
     getValue?: Function;
   }): Promise<void>;
 }) => Promise<void>;
 
-//Database
-export const mongoDbModel = model;
-export declare const mongoStart = () => Promise<void>;
-export const mongoDbSchema = Schema;
 export const SQL_SELECT_QUERY_TYPE = { type: QueryTypes.SELECT };
 export const SQL_INSERT_QUERY_TYPE = { type: QueryTypes.INSERT };
 export const SQL_UPDATE_QUERY_TYPE = { type: QueryTypes.UPDATE };

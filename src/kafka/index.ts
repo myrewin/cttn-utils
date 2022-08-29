@@ -26,11 +26,11 @@ export const kafka = new Kafka({
 
 const admin = kafka.admin();
 
-export const startKafka = async (topics: [ITopicConfig]): Promise<void> => {
+export const startKafka = async (
+  topics: Array<ITopicConfig>
+): Promise<void> => {
   await admin.connect();
-  await admin.createTopics({
-    topics,
-  });
+  await admin.createTopics({ topics });
 };
 
 export const publishEvent = async ({
