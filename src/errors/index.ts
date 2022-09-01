@@ -8,7 +8,7 @@ export class ValidationError extends Error {
     this.httpStatusCode = 400;
   }
 }
-export class ExistError extends Error {
+export class ExistsError extends Error {
   httpStatusCode: number;
   constructor(message: string) {
     super(message);
