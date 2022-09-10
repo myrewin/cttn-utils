@@ -3,6 +3,9 @@
     "target": "ES2020",
     "module": "Node16",
     "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "dist",
     "strict": true,
@@ -10,5 +13,5 @@
     "typeRoots": ["src/types"]
   },
   "include": ["src", "index.d.ts"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "exclude": ["node_modules"]
 }
