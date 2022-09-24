@@ -1,18 +1,10 @@
-import { KafkaMessage, Producer } from "kafkajs";
+import { KafkaConfig, KafkaMessage, ProducerConfig } from "kafkajs";
 
-export interface PublishEventInterface {
+export interface KafkaPublishInt {
   message: Record<string, any>;
   topic: string;
-  producer: Producer;
   headers?: Record<string, any>;
   token?: string;
-}
-
-export interface KProducerInterface {
-  allowAutoTopicCreation?: boolean;
-  idempotent?: boolean;
-  transactionalId?: string;
-  transactionTimeout?: number;
 }
 
 interface CttnMessageHander {
@@ -24,9 +16,21 @@ interface CttnMessageHander {
   getKey?: Function;
 }
 
-export interface SubscriberInterface {
+export interface ConsumerInt {
   groupId: string;
   topic: string;
   fromBeginning: boolean;
   cb(obj: CttnMessageHander): Promise<void>;
+}
+
+export interface KafkaBasicConfig {
+  username: string;
+  password: string;
+  brokers: string[];
+  ssl: boolean;
+}
+
+export interface KafkaInt {
+  config: KafkaConfig | KafkaBasicConfig;
+  producerConfig?: ProducerConfig;
 }

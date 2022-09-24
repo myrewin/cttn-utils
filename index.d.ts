@@ -1,3 +1,5 @@
+import { KafkaMessage } from "kafkajs";
+
 export declare const startRedis: () => Promise<void>;
 export declare const setRedis: (key: string, data: any) => Promise<any>;
 export declare const setRedisEx: (
@@ -48,23 +50,7 @@ export declare const customErrorMessage: ({
   ERROR_TYPE: string;
 }) => any;
 export declare const errorMessage: (err?: any, ERROR_TYPE?: string) => any;
-export declare const kafka: Kafka;
-export declare const startKafka: (topics: Array<ITopicConfig>) => Promise<void>;
-export declare const publishEvent: ({
-  topic,
-  message,
-  producer,
-  headers,
-  token,
-}: PublishEventInterface) => Promise<boolean>;
-declare type KProducer = (config: KProducerInterface) => Producer;
-export declare const producer: KProducer;
-export declare const subscriber: ({
-  groupId,
-  topic,
-  fromBeginning,
-  cb,
-}: SubscriberInterface) => Promise<void>;
+
 export declare const fileExists: (file: any) => Promise<unknown>;
 export declare const shuffelWord: (word: any) => string;
 export declare const deleteFile: (file: any) => Promise<boolean>;
@@ -162,3 +148,55 @@ export declare const fileManager: {
   exists: (fileUrl: string) => Promise<AxiosResponse>;
   url: (relativeUrl: string) => string;
 };
+
+//DB interface
+export interface KafkaPublishInt {
+  message: Record<string, any>;
+  topic: string;
+  headers?: Record<string, any>;
+  token?: string;
+}
+interface CttnMessageHander {
+  topic?: string;
+  partition?: number;
+  message: KafkaMessage;
+  getToken?: Function;
+  getValue?: Function;
+  getKey?: Function;
+}
+export interface ConsumerInt {
+  groupId: string;
+  topic: string;
+  fromBeginning: boolean;
+  cb(obj: CttnMessageHander): Promise<void>;
+}
+export interface KafkaBasicConfig {
+  username: string;
+  password: string;
+  brokers: string[];
+  ssl: boolean;
+}
+export interface KafkaInt {
+  config: KafkaConfig | KafkaBasicConfig;
+  producerConfig?: ProducerConfig;
+}
+
+//Kafka class
+export declare class Kafka {
+  client: Kafkajs;
+  private producer;
+  constructor({ config, producerConfig }: KafkaInt);
+  createProducer(config?: ProducerConfig): Producer;
+  start(): Promise<void>;
+  publish({ topic, message, headers, token }: KafkaPublishInt): Promise<void>;
+  private getValue;
+  private getKey;
+  private getToken;
+  createConsumer({
+    groupId,
+    topic,
+    fromBeginning,
+    cb,
+  }: ConsumerInt): Promise<void>;
+  disconnect(): Promise<void>;
+}
