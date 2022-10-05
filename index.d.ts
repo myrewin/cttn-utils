@@ -200,3 +200,27 @@ export declare class Kafka {
   }: ConsumerInt): Promise<void>;
   disconnect(): Promise<void>;
 }
+
+//Redis
+export declare class Redis {
+  private client;
+  constructor(url: string);
+  start(): Promise<void>;
+  disconnect(): Promise<void>;
+  set(key: string, data: any): Promise<any>;
+  setEx(key: string, data: any, duration: number | string): Promise<any>;
+  get(key: string, parse?: boolean): Promise<any>;
+  delete(key: string): Promise<boolean>;
+}
+
+//Auth
+export declare const Auth: (user: Record<string, any>) => {
+  isCentreOnwer: (centreId: string) => any;
+  isCentreManager: (centreId: string) => any;
+  isCentrePendingSubscriber: (centreId: string) => any;
+  isCentreSubscriber: (centreId: string) => any;
+  isPublicationSubscriber: (publicationId: string) => any;
+  isCourseSubscriber: (courseId: string) => any;
+  isExamSubscriber: (examId: string) => any;
+  isLeagueSubscriber: (leagueId: string) => any;
+};

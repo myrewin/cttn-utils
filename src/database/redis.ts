@@ -1,52 +1,66 @@
-import { createClient } from "redis";
+import { RedisClientOptions, createClient } from "redis";
+import { ValidationError } from "../errors";
+import { parseJSON } from "../utils";
 
-import { ValidationError } from "../errors/index.js";
-import { parseJSON } from "../utils/index.js";
+export class Redis {
+  private client;
 
-const Redis = createClient({
-  url: `redis://:${process.env.REDIS_PASSWORD || ""}@${
-    process.env.REDIS_HOST
-  }:${process.env.REDIS_PORT}`,
-});
+  constructor(url: string) {
+    this.client = createClient({ url });
+  }
 
-export const startRedis = async (): Promise<void> => await Redis.connect();
+  async start() {
+    await this.client.connect();
+  }
 
-export const setRedis = async (key: string, data: any): Promise<any> => {
-  if (!key || typeof key !== "string")
-    throw new ValidationError("Redis key must be a string");
+  async disconnect() {
+    await this.client.disconnect();
+  }
 
-  if (typeof data !== "number" || typeof data !== "string")
-    data = JSON.stringify(data);
-  return await Redis.set(key, data);
-};
+  async set(key: string, data: any): Promise<any> {
+    if (!key || typeof key !== "string")
+      throw new ValidationError("Redis key must be a string");
 
-export const setRedisEx = async (
-  key: string,
-  data: any,
-  duration: number
-): Promise<any> => {
-  if (!key || typeof key !== "string")
-    throw new ValidationError("Redis key must be a string");
+    if (typeof data !== "number" || typeof data !== "string")
+      data = JSON.stringify(data);
+    return await this.client.set(key, data);
+  }
 
-  if (typeof data !== "number" || typeof data !== "string")
-    data = JSON.stringify(data);
-  return await Redis.setEx(key,duration, data);
-};
+  async setEx(key: string, data: any, duration: number | string): Promise<any> {
+    if (!key || typeof key !== "string")
+      throw new ValidationError("Redis key must be a string");
 
-export const getRedis = async (
-  key: string,
-  parse: boolean = true
-): Promise<any> => {
-  if (!key || typeof key !== "string")
-    throw new ValidationError("Redis key must be a string");
+    if (typeof data !== "number" || typeof data !== "string")
+      data = JSON.stringify(data);
 
-  const data = (await Redis.get(key)) as any;
-  return parse ? parseJSON(data) : data;
-};
+    if (typeof duration === "string") {
+      let [value, unit] = duration.split(" ") as any;
+      value = Number(value);
+      if (unit === "days") {
+        duration = 60 * 60 * 24 * value;
+      } else if (unit === "minutes") {
+        duration = 60 * value;
+      } else if (unit === "hours") {
+        duration = 60 * 60 * value;
+      }
+    }
+    return await this.client.setEx(key, duration as number, data);
+  }
 
-export const delRedis = async (key: string): Promise<boolean> => {
-  if (!key || typeof key !== "string")
-    throw new ValidationError("Redis key must be a string");
+  async get(key: string, parse: boolean = true): Promise<any> {
+    if (!key || typeof key !== "string")
+      throw new ValidationError("Redis key must be a string");
 
-  return Boolean(await Redis.del(key));
-};
+    const data = (await this.client.get(key)) as any;
+    return parse ? parseJSON(data) : data;
+  }
+
+  async delete(key: string): Promise<boolean> {
+    if (!key || typeof key !== "string")
+      throw new ValidationError("Redis key must be a string");
+
+    return Boolean(await this.client.del(key));
+  }
+}
+
+export default Redis;
