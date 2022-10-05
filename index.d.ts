@@ -212,15 +212,3 @@ export declare class Redis {
   get(key: string, parse?: boolean): Promise<any>;
   delete(key: string): Promise<boolean>;
 }
-
-//Auth
-export declare const Auth: (user: Record<string, any>) => {
-  isCentreOnwer: (centreId: string) => any;
-  isCentreManager: (centreId: string) => any;
-  isCentrePendingSubscriber: (centreId: string) => any;
-  isCentreSubscriber: (centreId: string) => any;
-  isPublicationSubscriber: (publicationId: string) => any;
-  isCourseSubscriber: (courseId: string) => any;
-  isExamSubscriber: (examId: string) => any;
-  isLeagueSubscriber: (leagueId: string) => any;
-};
