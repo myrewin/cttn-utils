@@ -241,7 +241,7 @@ export const postContent = async ({
   url: string;
   token?: string;
   data?: Record<string, any>;
-  method?: "POST" | "PATCH";
+  method?: "POST" | "PATCH" | "PUT";
   headers?: Record<string, any>;
 }): Promise<AxiosResponse> => {
   try {
