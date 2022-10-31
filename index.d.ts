@@ -109,7 +109,7 @@ export declare const paginate: (
   totalCount: number,
   currentPage: number,
   perPage: number
-) => object;
+) => Record<string,any>;
 export declare const decodeJwt: (
   cipher: any,
   secreteKey: string
