@@ -436,3 +436,9 @@ export const fileManager = {
     return baseUrl + relativeUrl;
   },
 };
+
+export const urlQueryToString= (query:any) => {
+    let queryString = "?";
+    for (let key in query) queryString += `${key}=${query[key]}&`;
+    return queryString;
+  }

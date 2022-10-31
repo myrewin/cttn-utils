@@ -123,6 +123,9 @@ export declare const encodeJwt: ({
   secreteKey: string;
   duration: string;
 }) => Promise<any>;
+
+export declare function urlQueryToString(query:any): string;  
+
 export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;
 export declare function parseJSON(value: string): any;
