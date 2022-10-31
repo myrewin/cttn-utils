@@ -268,7 +268,7 @@ export const paginate = (
   totalCount: number,
   currentPage: number,
   perPage: number
-): object => {
+): Record<string,any> => {
   const previousPage = currentPage - 1;
   return {
     pageCount: Math.ceil(totalCount / perPage),
