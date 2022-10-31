@@ -125,6 +125,7 @@ export declare const encodeJwt: ({
 }) => Promise<any>;
 
 export declare function urlQueryToString(query:any): string;  
+export declare function rand(min:number, max:number): number;  
 
 export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;

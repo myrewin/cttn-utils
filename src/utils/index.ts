@@ -442,3 +442,8 @@ export const urlQueryToString= (query:any) => {
     for (let key in query) queryString += `${key}=${query[key]}&`;
     return queryString;
   }
+
+
+export const rand = (min = 0, max = 10000) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
