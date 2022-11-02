@@ -36,11 +36,11 @@ export class Redis {
     if (typeof duration === "string") {
       let [value, unit] = duration.split(" ") as any;
       value = Number(value);
-      if (unit === "days") {
+      if (unit === "days" || unit === "day") {
         duration = 60 * 60 * 24 * value;
-      } else if (unit === "minutes") {
+      } else if (unit === "minutes" || unit === "minute") {
         duration = 60 * value;
-      } else if (unit === "hours") {
+      } else if (unit === "hours" || unit === "hour") {
         duration = 60 * 60 * value;
       }
     }
