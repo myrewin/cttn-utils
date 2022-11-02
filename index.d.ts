@@ -1,14 +1,5 @@
 import { KafkaMessage } from "kafkajs";
 
-export declare const startRedis: () => Promise<void>;
-export declare const setRedis: (key: string, data: any) => Promise<any>;
-export declare const setRedisEx: (
-  key: string,
-  data: any,
-  duration: number
-) => Promise<any>;
-export declare const getRedis: (key: string, parse?: boolean) => Promise<any>;
-export declare const delRedis: (key: string) => Promise<boolean>;
 export declare class ValidationError extends Error {
   httpStatusCode: number;
   constructor(message: string);
@@ -60,6 +51,10 @@ export declare function joiValidator(
 ): any;
 export declare const randomString: (N?: number) => string;
 export declare const uniqueString: (capitalize?: boolean) => string;
+export declare const base64ToFile: (
+  base64String: any,
+  path: any
+) => Promise<unknown>;
 export declare const createPath: (path: any) => Promise<unknown>;
 export declare const uploadFile: ({
   name,
@@ -109,7 +104,7 @@ export declare const paginate: (
   totalCount: number,
   currentPage: number,
   perPage: number
-) => object;
+) => Record<string, any>;
 export declare const decodeJwt: (
   cipher: any,
   secreteKey: string
@@ -123,6 +118,10 @@ export declare const encodeJwt: ({
   secreteKey: string;
   duration: string;
 }) => Promise<any>;
+
+export declare function urlQueryToString(query: any): string;
+export declare function rand(min: number, max: number): number;
+
 export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;
 export declare function parseJSON(value: string): any;

@@ -1,4 +1,4 @@
-import { access, unlink, constants, mkdir } from "fs";
+import { access, unlink, constants, mkdir, writeFile } from "fs";
 
 import { Request, Response, NextFunction } from "express";
 
@@ -26,6 +26,29 @@ export const fileExists = (file: any) => {
     });
   });
 };
+
+export const base64ToFile = (base64String:any, path:any)=>{
+  return new Promise((ful, rej) => {
+    let file = base64String.replace(/^data:image\/\w+;base64,/, "");
+    let format = file.charAt(0);
+    if (format === "/") format = "jpg";
+    else if (format === "i") format = "png";
+    else if (format === "R") format = "gif";
+    else if (format === "U") format = "webp";
+    else if (format === "J") format = "pdf";
+    else if (format === "U") format = "docx";
+
+    createPath(path)
+      .then(() => {
+        path = `${path}/${uniqueString()}.${format}`;
+        writeFile(path, file, "base64", (err) => {
+          if (err) rej(err);
+          ful(path);
+        });
+      })
+      .catch((err) => rej(err));
+  });
+}
 
 export const shuffelWord = (word: any) => {
   let shuffledWord = "";
@@ -241,7 +264,7 @@ export const postContent = async ({
   url: string;
   token?: string;
   data?: Record<string, any>;
-  method?: "POST" | "PATCH";
+  method?: "POST" | "PATCH" | "PUT";
   headers?: Record<string, any>;
 }): Promise<AxiosResponse> => {
   try {
@@ -268,7 +291,7 @@ export const paginate = (
   totalCount: number,
   currentPage: number,
   perPage: number
-): object => {
+): Record<string,any> => {
   const previousPage = currentPage - 1;
   return {
     pageCount: Math.ceil(totalCount / perPage),
@@ -435,4 +458,15 @@ export const fileManager = {
     if (prefix === "s3") baseUrl = process.env.AWS_S3_BASE_URL + "/";
     return baseUrl + relativeUrl;
   },
+};
+
+export const urlQueryToString= (query:any) => {
+    let queryString = "?";
+    for (let key in query) queryString += `${key}=${query[key]}&`;
+    return queryString;
+  }
+
+
+export const rand = (min = 0, max = 10000) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
