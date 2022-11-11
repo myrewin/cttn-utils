@@ -16,7 +16,7 @@ import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
 import request from "request";
 
-import { ValidationError } from "../errors/index.js";
+import { errorMessage, ValidationError } from "../errors/index.js";
 
 export const fileExists = (file: any) => {
   return new Promise((resolve, reject) => {
@@ -352,7 +352,7 @@ export function parseJSON(value: string): any {
 }
 
 export const uuid = {
-  toBinary: (uuid: string): object => {
+  toBinary: (uuid?: string): Buffer => {
     if (!uuid) uuid = uuidV1();
     else if (typeof uuid !== "string" && Buffer.isBuffer(uuid)) return uuid;
     const buf = Buffer.from(uuid.replace(/-/g, ""), "hex");
@@ -363,7 +363,7 @@ export const uuid = {
       buf.subarray(8, 16),
     ]);
   },
-  toString: (binary: any): string => {
+  toString: (binary: Buffer): string => {
     if (!binary) throw new Error("Kindly supply binary UUID value");
     if (typeof binary === "string") return binary;
     return [
@@ -374,27 +374,38 @@ export const uuid = {
       binary.toString("hex", 10, 16),
     ].join("-");
   },
-  mysqlBinary: (value: any): object => Sequelize.fn("UUID_TO_BIN", value, 1),
-  mysqlUUID: (field: any): object => [
+  mysqlBinary: (value: any): any => Sequelize.fn("UUID_TO_BIN", value, 1),
+  mysqlUUID: (field: any): any => [
     Sequelize.fn("BIN_TO_UUID", Sequelize.col(field), 1),
     field,
   ],
   get: (): string => uuidV1(),
   isValid: (uuid: string): boolean => UUIDValidaton(uuid),
+  manyToString: (data: any, keys = []) => {
+    if (!data) return;
+    keys.forEach((key) => {
+      if (data[key]) data[key] = uuid.toString(data[key]);
+    });
+    return data;
+  },
+  manyToBinary: (data: any, keys = []) => {
+    if (!data) return;
+    keys.forEach((key) => {
+      if (data[key]) data[key] = uuid.toBinary(data[key]);
+    });
+    return data;
+  },
 };
 
+
 export const fileManager = {
-  upload: (location: string = "s3") => async (
-    req: Request | any,
-    res: Response,
-    next: NextFunction
-  ):Promise<any> => {
+  upload: (location = "s3") => async (req:any, res:any, next:any) => {
     try {
       const pipe = req.pipe(
-        request(process.env.FILE_MANAGER_URL + "/" + location)
+        request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
       );
-      const chunks = [] as any;
-      pipe.on("data", (chunk: any) => chunks.push(chunk));
+      const chunks:any = [];
+      pipe.on("data", (chunk:any) => chunks.push(chunk));
       pipe.on("end", () => {
         let result = Buffer.concat(chunks).toString() as any;
         result = JSON.parse(result);
@@ -410,19 +421,19 @@ export const fileManager = {
     }
   },
 
-  uploadBase64: async (file: any):Promise<string> => {
+  uploadBase64: async (file:any) => {
     try {
-      const result = await postContent({
-        url: process.env.FILE_MANAGER_URL + "/base64",
+      const result = (await postContent({
+        url: process.env.FILE_MANAGER_URL + "/file-upload/base64",
         data: { file },
-      }) as any;
+      })) as any;
       return result.file.relativeUrl;
     } catch (err) {
       throw err;
     }
   },
 
-  remove: async (fileUrl: string | Array<string>):Promise<void> => {
+  remove: async (fileUrl: string | Array<string>) => {
     if (!fileUrl) return;
     await getContent({
       url: process.env.FILE_MANAGER_URL,
@@ -433,15 +444,15 @@ export const fileManager = {
 
   resizeImage: async (
     fileUrl: string,
-    width:number = 500,
+    width = 500,
     height: number
-  ): Promise<AxiosResponse> =>
+  ): Promise<any> =>
     await postContent({
       url: process.env.FILE_MANAGER_URL + "/resize-image",
       data: { fileUrl, width, height },
     }),
 
-  exists: async (fileUrl: string): Promise<AxiosResponse> =>
+  exists: async (fileUrl: string): Promise<any> =>
     await postContent({
       url: process.env.FILE_MANAGER_URL + "/exists",
       data: { fileUrl },
@@ -455,10 +466,18 @@ export const fileManager = {
 
     const [prefix] = relativeUrl.split("-");
     let baseUrl = process.env.FILE_MANAGER_MEDIA_URL + "/";
-    if (prefix === "s3") baseUrl = process.env.AWS_S3_BASE_URL + "/";
-    return baseUrl + relativeUrl;
+    let imageUrl = "";
+    if (prefix === "s3"){
+      baseUrl = process.env.AWS_S3_BASE_URL + "/";
+      imageUrl =  baseUrl + relativeUrl;
+    } else{
+      imageUrl =  "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg"
+
+    }
+    return imageUrl
   },
 };
+
 
 export const urlQueryToString= (query:any) => {
     let queryString = "?";
@@ -469,4 +488,90 @@ export const urlQueryToString= (query:any) => {
 
 export const rand = (min = 0, max = 10000) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+
+export const redirect = (
+  url: string,
+  config?: {
+    redirectUrl?: string;
+    isBaseUrl?: boolean;
+    updateCentreAuth?: boolean;
+    addUserId?: boolean;
+    addTokenRef?: boolean;
+    userData?: Array<string>;
+  }
+) => {
+  return async (req: Request | any, res: Response) => {
+    try {
+      const {
+        isBaseUrl = true,
+        updateCentreAuth = false,
+        addUserId = true,
+        addTokenRef = false,
+        userData = [],
+        redirectUrl,
+      } = config || {};
+
+      let payload: Record<string, any> = {
+        method: req.method,
+        headers: {},
+        data: req.body,
+        url,
+      };
+
+      if (redirectUrl) {
+        const utoken = req.url.split("/");
+        const fUrlToken = redirectUrl.split("/:");
+        const urlTokenLength = fUrlToken.length;
+        const fUrl = fUrlToken
+          .map((item, index) => {
+            const token = parseInt(item);
+            if (isNaN(token))
+              return urlTokenLength - 1 === index ? item : `${item}/`;
+            return urlTokenLength - 1 === index
+              ? `${utoken[token]}`
+              : `${utoken[token]}/`;
+          })
+          .join("");
+
+        payload.url = `${url}${fUrl}`;
+      } else {
+        payload.url += req.url;
+      }
+
+      const user = req?.user;
+
+      if (req.headers.authorization)
+        payload.headers["authorization"] = req.headers.authorization;
+      if (req.file) payload.data.file = req.file;
+      if (req.files) payload.data.files = req.files;
+      if (addUserId && user) payload.headers.userId = user.id;
+      if (addTokenRef && user) payload.headers.tokenRef = user.tokenRef;
+      if (req.headers.contentid)
+        payload.headers.contentid = req.headers.contentid;
+      if (req.headers.transactionkey)
+        payload.headers.transactionkey = req.headers.transactionkey;
+      if (userData.length > 0 && user) {
+        userData.forEach((key) => {
+          payload.data[key] = user[key];
+        });
+        if (userData.includes("name"))
+          payload.data["name"] = `${user.firstname} ${user.lastname}`;
+        if (payload.data.id) {
+          payload.data.userId = user.id;
+          delete payload.data.id;
+        }
+      }
+      const response = await Axios(payload);
+
+      response.data.auth = req.auth;
+
+      res.status(response.status).json(response.data);
+      res.end();
+    } catch (err:any) {
+      const data = err.response ? err.response.data : errorMessage(err);
+      res.status(data.httpStatusCode || 500).json(data);
+    }
+  };
 };
