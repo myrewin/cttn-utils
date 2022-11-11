@@ -490,6 +490,42 @@ export const rand = (min = 0, max = 10000) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+const auth = {
+  isCentreSubscriber: (user:any, centreId:any) =>
+    !user
+      ? false
+      : user.subscribedCentres.includes(centreId) ||
+        auth.isCentreManager(user, centreId),
+
+  isExamSubscriber: (user:any, examId:any, centreId:any) =>
+    !user
+      ? false
+      : user.subscribedExams.includes(examId) ||
+        auth.isCentreManager(user, centreId),
+
+  isCentreManager: (user:any, centreId:any) =>
+    !user
+      ? false
+      : user.managingCentres.includes(centreId) ||
+        user.ownCentres.includes(centreId),
+
+  isCenterOwner: (user:any, centreId:any) =>
+    !user ? false : user.ownCentres.includes(centreId),
+
+  isPublicationSubscriber: (user:any, centreId: string, publicationId: string) =>
+    !user
+      ? false
+      : user.subscribedPublications.includes(publicationId) ||
+        auth.isCentreManager(user, centreId),
+
+  isCourseSubscriber: (user:any, centreId: string, courseId: string) =>
+    !user
+      ? false
+      : user.subscribedCourses.includes(courseId) ||
+        auth.isCentreManager(user, centreId),
+
+};
+
 
 export const redirect = (
   url: string,
@@ -500,6 +536,7 @@ export const redirect = (
     addUserId?: boolean;
     addTokenRef?: boolean;
     userData?: Array<string>;
+    addPermission?: "publication" | "course" | "league" | "exam";
   }
 ) => {
   return async (req: Request | any, res: Response) => {
@@ -511,6 +548,7 @@ export const redirect = (
         addTokenRef = false,
         userData = [],
         redirectUrl,
+        addPermission
       } = config || {};
 
       let payload: Record<string, any> = {
@@ -565,7 +603,41 @@ export const redirect = (
       }
       const response = await Axios(payload);
 
-      response.data.auth = req.auth;
+      if (addPermission && user) {
+        const permissions: any = {};
+        if (addPermission === "course") {
+          const { centreId, courseId = null } = req.params;
+
+          permissions.isCentreManager = auth.isCentreManager(user, centreId);
+          permissions.isCentreSubscriber = auth.isCentreSubscriber(
+            user,
+            centreId
+          );
+          if (courseId)
+            permissions.isCourseSubscriber = auth.isCourseSubscriber(
+              user,
+              centreId,
+              courseId
+            );
+        } else if (addPermission === "publication") {
+          const { centreId, publicationId } = req.params;
+
+          permissions.isCentreManager = auth.isCentreManager(user, centreId);
+          permissions.isCentreSubscriber = auth.isCentreSubscriber(
+            user,
+            centreId
+          );
+          if (publicationId)
+            permissions.isPublicationSubscriber = auth.isPublicationSubscriber(
+              user,
+              centreId,
+              publicationId
+            );
+        }
+
+        response.data.auth = permissions;
+      }
+
 
       res.status(response.status).json(response.data);
       res.end();
