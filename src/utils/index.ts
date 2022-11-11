@@ -200,9 +200,10 @@ export const uploadFile = ({
 };
 
 export const slugify = (
-  text: string,
-{ lowerCase = true }: { lowerCase: boolean }
+text: string,
+options?: { lowerCase:boolean}
 ): string => {
+  const {lowerCase = true} = options || {} 
   if (lowerCase)
     return Slugify(text, {
       remove: /[*,}{》《`^#+~.()%&'"!:@]/g,
