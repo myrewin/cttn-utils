@@ -67,13 +67,10 @@ export declare const uploadFile: ({
   allowedFormat?: any[] | undefined;
   location?: string | undefined;
 }) => any;
-export declare const slugify: ({
-  value,
-  lowerCase,
-}: {
-  value: string;
-  lowerCase: boolean;
-}) => string;
+export declare const slugify: (
+  text: string,
+  options?: { lowerCase: boolean }
+) => string;
 export declare const getContent: ({
   url,
   method,
@@ -126,14 +123,14 @@ export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;
 export declare function parseJSON(value: string): any;
 export declare const uuid: {
-  toBinary: (uuid: string) => object|any;
+  toBinary: (uuid: string) => object | any;
   toString: (binary: any) => string;
-  mysqlBinary: (value: any) => object|any;
-  mysqlUUID: (field: any) => object|any;
+  mysqlBinary: (value: any) => object | any;
+  mysqlUUID: (field: any) => object | any;
   get: () => string;
   isValid: (uuid: string) => boolean;
-  manyToString: (data: any, keys:any) => any;
-  manyToBinary: (data: any, keys:any) => any;
+  manyToString: (data: any, keys: any) => any;
+  manyToBinary: (data: any, keys: any) => any;
 };
 export declare const fileManager: {
   upload: (
