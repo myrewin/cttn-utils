@@ -199,20 +199,17 @@ export const uploadFile = ({
   return multer({ storage, limits, fileFilter });
 };
 
-export const slugify = ({
-  value,
-  lowerCase = true,
-}: {
-  value: string;
-  lowerCase: boolean;
-}): string => {
+export const slugify = (
+  text: string,
+{ lowerCase = true }: { lowerCase: boolean }
+): string => {
   if (lowerCase)
-    return Slugify(value, {
+    return Slugify(text, {
       remove: /[*,}{》《`^#+~.()%&'"!:@]/g,
       lower: true,
     });
 
-  return Slugify(value, {
+  return Slugify(text, {
     remove: /[*,}{》《`^#+~.()%&'"!:@]/g,
     lower: false,
   });
