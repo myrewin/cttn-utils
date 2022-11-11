@@ -27,7 +27,7 @@ export const fileExists = (file: any) => {
   });
 };
 
-export const base64ToFile = (base64String:any, path:any)=>{
+export const base64ToFile = (base64String: any, path: any) => {
   return new Promise((ful, rej) => {
     let file = base64String.replace(/^data:image\/\w+;base64,/, "");
     let format = file.charAt(0);
@@ -48,7 +48,7 @@ export const base64ToFile = (base64String:any, path:any)=>{
       })
       .catch((err) => rej(err));
   });
-}
+};
 
 export const shuffelWord = (word: any) => {
   let shuffledWord = "";
@@ -278,9 +278,9 @@ export const postContent = async ({
       headers,
     });
 
-  return result.data;
+    return result.data;
   } catch (err:any) {
-     throw err.response
+    throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
       : err;
@@ -291,7 +291,7 @@ export const paginate = (
   totalCount: number,
   currentPage: number,
   perPage: number
-): Record<string,any> => {
+): Record<string, any> => {
   const previousPage = currentPage - 1;
   return {
     pageCount: Math.ceil(totalCount / perPage),
@@ -352,7 +352,7 @@ export function parseJSON(value: string): any {
 }
 
 export const uuid = {
-  toBinary: (uuid?: string): Buffer => {
+  toBinary: (uuid?: string): Buffer | any => {
     if (!uuid) uuid = uuidV1();
     else if (typeof uuid !== "string" && Buffer.isBuffer(uuid)) return uuid;
     const buf = Buffer.from(uuid.replace(/-/g, ""), "hex");
@@ -363,7 +363,7 @@ export const uuid = {
       buf.subarray(8, 16),
     ]);
   },
-  toString: (binary: Buffer): string => {
+  toString: (binary: Buffer | any): string => {
     if (!binary) throw new Error("Kindly supply binary UUID value");
     if (typeof binary === "string") return binary;
     return [
@@ -397,15 +397,14 @@ export const uuid = {
   },
 };
 
-
 export const fileManager = {
-  upload: (location = "s3") => async (req:any, res:any, next:any) => {
+  upload: (location = "s3") => async (req: any, res: any, next: any) => {
     try {
       const pipe = req.pipe(
         request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
       );
-      const chunks:any = [];
-      pipe.on("data", (chunk:any) => chunks.push(chunk));
+      const chunks: any = [];
+      pipe.on("data", (chunk: any) => chunks.push(chunk));
       pipe.on("end", () => {
         let result = Buffer.concat(chunks).toString() as any;
         result = JSON.parse(result);
@@ -421,7 +420,7 @@ export const fileManager = {
     }
   },
 
-  uploadBase64: async (file:any) => {
+  uploadBase64: async (file: any) => {
     try {
       const result = (await postContent({
         url: process.env.FILE_MANAGER_URL + "/file-upload/base64",
@@ -467,65 +466,65 @@ export const fileManager = {
     const [prefix] = relativeUrl.split("-");
     let baseUrl = process.env.FILE_MANAGER_MEDIA_URL + "/";
     let imageUrl = "";
-    if (prefix === "s3"){
+    if (prefix === "s3") {
       baseUrl = process.env.AWS_S3_BASE_URL + "/";
-      imageUrl =  baseUrl + relativeUrl;
-    } else{
-      imageUrl =  "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg"
-
+      imageUrl = baseUrl + relativeUrl;
+    } else {
+      imageUrl =
+        "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg";
     }
-    return imageUrl
+    return imageUrl;
   },
 };
 
-
-export const urlQueryToString= (query:any) => {
-    let queryString = "?";
-    for (let key in query) queryString += `${key}=${query[key]}&`;
-    return queryString;
-  }
-
+export const urlQueryToString = (query: any) => {
+  let queryString = "?";
+  for (let key in query) queryString += `${key}=${query[key]}&`;
+  return queryString;
+};
 
 export const rand = (min = 0, max = 10000) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 const auth = {
-  isCentreSubscriber: (user:any, centreId:any) =>
+  isCentreSubscriber: (user: any, centreId: any) =>
     !user
       ? false
       : user.subscribedCentres.includes(centreId) ||
         auth.isCentreManager(user, centreId),
 
-  isExamSubscriber: (user:any, examId:any, centreId:any) =>
+  isExamSubscriber: (user: any, examId: any, centreId: any) =>
     !user
       ? false
       : user.subscribedExams.includes(examId) ||
         auth.isCentreManager(user, centreId),
 
-  isCentreManager: (user:any, centreId:any) =>
+  isCentreManager: (user: any, centreId: any) =>
     !user
       ? false
       : user.managingCentres.includes(centreId) ||
         user.ownCentres.includes(centreId),
 
-  isCenterOwner: (user:any, centreId:any) =>
+  isCenterOwner: (user: any, centreId: any) =>
     !user ? false : user.ownCentres.includes(centreId),
 
-  isPublicationSubscriber: (user:any, centreId: string, publicationId: string) =>
+  isPublicationSubscriber: (
+    user: any,
+    centreId: string,
+    publicationId: string
+  ) =>
     !user
       ? false
       : user.subscribedPublications.includes(publicationId) ||
         auth.isCentreManager(user, centreId),
 
-  isCourseSubscriber: (user:any, centreId: string, courseId: string) =>
+  isCourseSubscriber: (user: any, centreId: string, courseId: string) =>
     !user
       ? false
       : user.subscribedCourses.includes(courseId) ||
         auth.isCentreManager(user, centreId),
-
 };
-
 
 export const redirect = (
   url: string,
@@ -548,7 +547,7 @@ export const redirect = (
         addTokenRef = false,
         userData = [],
         redirectUrl,
-        addPermission
+        addPermission,
       } = config || {};
 
       let payload: Record<string, any> = {
@@ -637,7 +636,6 @@ export const redirect = (
 
         response.data.auth = permissions;
       }
-
 
       res.status(response.status).json(response.data);
       res.end();

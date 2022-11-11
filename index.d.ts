@@ -126,12 +126,14 @@ export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;
 export declare function parseJSON(value: string): any;
 export declare const uuid: {
-  toBinary: (uuid: string) => object;
+  toBinary: (uuid: string) => object|any;
   toString: (binary: any) => string;
-  mysqlBinary: (value: any) => object;
-  mysqlUUID: (field: any) => object;
+  mysqlBinary: (value: any) => object|any;
+  mysqlUUID: (field: any) => object|any;
   get: () => string;
   isValid: (uuid: string) => boolean;
+  manyToString: (data: any, keys:any) => any;
+  manyToBinary: (data: any, keys:any) => any;
 };
 export declare const fileManager: {
   upload: (
