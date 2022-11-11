@@ -1,4 +1,5 @@
-import { RedisClientOptions, createClient } from "redis";
+import Ioredis from "ioredis";
+
 import { ValidationError } from "../errors";
 import { parseJSON } from "../utils";
 
@@ -6,7 +7,7 @@ export class Redis {
   private client;
 
   constructor(url: string) {
-    this.client = createClient({ url });
+    this.client = new Ioredis(url);
   }
 
   async start() {
@@ -44,7 +45,7 @@ export class Redis {
         duration = 60 * 60 * value;
       }
     }
-    return await this.client.setEx(key, duration as number, data);
+    return await this.client.setex(key, duration as number, data);
   }
 
   async get(key: string, parse: boolean = true): Promise<any> {
