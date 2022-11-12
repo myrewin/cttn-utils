@@ -350,7 +350,7 @@ export function parseJSON(value: any): any {
 }
 
 export const uuid = {
-  toBinary: (uuid?: string): Buffer | any => {
+  toBinary: (uuid?: string): Buffer => {
     if (!uuid) uuid = uuidV1();
     else if (typeof uuid !== "string" && Buffer.isBuffer(uuid)) return uuid;
     const buf = Buffer.from(uuid.replace(/-/g, ""), "hex");
