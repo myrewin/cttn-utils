@@ -200,10 +200,10 @@ export const uploadFile = ({
 };
 
 export const slugify = (
-text: string,
-options?: { lowerCase:boolean}
+  text: string,
+  options?: { lowerCase: boolean }
 ): string => {
-  const {lowerCase = true} = options || {} 
+  const { lowerCase = true } = options || {};
   if (lowerCase)
     return Slugify(text, {
       remove: /[*,}{》《`^#+~.()%&'"!:@]/g,
@@ -244,7 +244,7 @@ export const getContent = async ({
     const result = await Axios(payload);
 
     return result.data;
-  } catch (err:any) {
+  } catch (err: any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -277,7 +277,7 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err:any) {
+  } catch (err: any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -341,11 +341,11 @@ export function devLog(...keys: any): void {
   }
 }
 
-export function parseJSON(value: string): any {
+export function parseJSON(value: any): any {
   try {
     return JSON.parse(value);
   } catch (err) {
-    return err;
+    return value;
   }
 }
 
@@ -361,7 +361,7 @@ export const uuid = {
       buf.subarray(8, 16),
     ]);
   },
-  toString: (binary: Buffer | any): string => {
+  toString: (binary: Buffer): string => {
     if (!binary) throw new Error("Kindly supply binary UUID value");
     if (typeof binary === "string") return binary;
     return [
@@ -396,27 +396,29 @@ export const uuid = {
 };
 
 export const fileManager = {
-  upload: (location = "s3") => async (req: any, res: any, next: any) => {
-    try {
-      const pipe = req.pipe(
-        request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
-      );
-      const chunks: any = [];
-      pipe.on("data", (chunk: any) => chunks.push(chunk));
-      pipe.on("end", () => {
-        let result = Buffer.concat(chunks).toString() as any;
-        result = JSON.parse(result);
-        if (result.success === false) {
-          res.send(result);
-          return res.end();
-        }
-        for (let key in result) req[key] = result[key];
-        return next();
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
+  upload:
+    (location = "s3") =>
+    async (req: any, res: any, next: any) => {
+      try {
+        const pipe = req.pipe(
+          request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
+        );
+        const chunks: any = [];
+        pipe.on("data", (chunk: any) => chunks.push(chunk));
+        pipe.on("end", () => {
+          let result = Buffer.concat(chunks).toString() as any;
+          result = JSON.parse(result);
+          if (result.success === false) {
+            res.send(result);
+            return res.end();
+          }
+          for (let key in result) req[key] = result[key];
+          return next();
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
 
   uploadBase64: async (file: any) => {
     try {
@@ -637,7 +639,7 @@ export const redirect = (
 
       res.status(response.status).json(response.data);
       res.end();
-    } catch (err:any) {
+    } catch (err: any) {
       const data = err.response ? err.response.data : errorMessage(err);
       res.status(data.httpStatusCode || 500).json(data);
     }
