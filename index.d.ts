@@ -42,7 +42,14 @@ export declare const customErrorMessage: ({
 }) => any;
 export declare const errorMessage: (err?: any, ERROR_TYPE?: string) => any;
 
+// general functions in index
+export declare const CONTENT_GROUP: string[];
+export declare const ALLOWED_FILE_TYPES: Record<string, string[]>;
 export declare const fileExists: (file: any) => Promise<unknown>;
+export declare const base64ToFile: (
+  base64String: any,
+  path: any
+) => Promise<unknown>;
 export declare const shuffelWord: (word: any) => string;
 export declare const deleteFile: (file: any) => Promise<boolean>;
 export declare function joiValidator(
@@ -51,10 +58,6 @@ export declare function joiValidator(
 ): any;
 export declare const randomString: (N?: number) => string;
 export declare const uniqueString: (capitalize?: boolean) => string;
-export declare const base64ToFile: (
-  base64String: any,
-  path: any
-) => Promise<unknown>;
 export declare const createPath: (path: any) => Promise<unknown>;
 export declare const uploadFile: ({
   name,
@@ -69,7 +72,9 @@ export declare const uploadFile: ({
 }) => any;
 export declare const slugify: (
   text: string,
-  options?: { lowerCase: boolean }
+  options?: {
+    lowerCase: boolean;
+  }
 ) => string;
 export declare const getContent: ({
   url,
@@ -94,7 +99,7 @@ export declare const postContent: ({
   url: string;
   token?: string | undefined;
   data?: Record<string, any> | undefined;
-  method?: "POST" | "PATCH" | undefined;
+  method?: "POST" | "PATCH" | "PUT" | undefined;
   headers?: Record<string, any> | undefined;
 }) => Promise<AxiosResponse>;
 export declare const paginate: (
@@ -115,37 +120,46 @@ export declare const encodeJwt: ({
   secreteKey: string;
   duration: string;
 }) => Promise<any>;
-
-export declare function urlQueryToString(query: any): string;
-export declare function rand(min: number, max: number): number;
-
 export declare function globalErrorHandler(err: Error): void;
 export declare function devLog(...keys: any): void;
-export declare function parseJSON(value: string): any;
+export declare function parseJSON(value: any): any;
 export declare const uuid: {
-  toBinary: (uuid: string) => object | any;
-  toString: (binary: any) => string;
-  mysqlBinary: (value: any) => object | any;
-  mysqlUUID: (field: any) => object | any;
+  toBinary: (uuid?: string) => Buffer;
+  toString: (binary: Buffer) => string;
   get: () => string;
   isValid: (uuid: string) => boolean;
-  manyToString: (data: any, keys: any) => any;
-  manyToBinary: (data: any, keys: any) => any;
+  manyToString: (data: any, keys?: never[]) => any;
+  manyToBinary: (data: any, keys?: never[]) => any;
 };
 export declare const fileManager: {
   upload: (
     location?: string
-  ) => (req: Request | any, res: Response, next: NextFunction) => Promise<any>;
-  uploadBase64: (file: any) => Promise<string>;
+  ) => (req: any, res: any, next: any) => Promise<void>;
+  uploadBase64: (file: any) => Promise<any>;
   remove: (fileUrl: string | Array<string>) => Promise<void>;
   resizeImage: (
     fileUrl: string,
     width: number | undefined,
     height: number
-  ) => Promise<AxiosResponse>;
-  exists: (fileUrl: string) => Promise<AxiosResponse>;
+  ) => Promise<any>;
+  exists: (fileUrl: string) => Promise<any>;
+  getFileFormat: (file: string) => string;
   url: (relativeUrl: string) => string;
 };
+export declare const urlQueryToString: (query: any) => string;
+export declare const rand: (min?: number, max?: number) => number;
+export declare const redirect: (
+  url: string,
+  config?: {
+    redirectUrl?: string;
+    isBaseUrl?: boolean;
+    updateCentreAuth?: boolean;
+    addUserId?: boolean;
+    addTokenRef?: boolean;
+    userData?: Array<string>;
+    addPermission?: "publication" | "course" | "league" | "exam";
+  }
+) => (req: Request | any, res: Response) => Promise<void>;
 
 //DB interface
 export interface KafkaPublishInt {
