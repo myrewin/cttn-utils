@@ -2,8 +2,6 @@ import { access, unlink, constants, mkdir, writeFile } from "fs";
 
 import { Request, Response, NextFunction } from "express";
 
-import { Sequelize } from "sequelize";
-
 import multer from "multer";
 
 import Slugify from "slugify";
@@ -17,6 +15,27 @@ import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 import request from "request";
 
 import { errorMessage, ValidationError } from "../errors/index.js";
+
+export const CONTENT_GROUP = ["video", "audio", "document", "image", "others"];
+
+export const ALLOWED_FILE_TYPES: Record<string, string[]> = {
+  video: ["3gp", "mp4", "mov", "flv", "wmv", "avi", "mpeg"],
+  audio: ["wav", "mp3", "wma", "3ga", "mpeg", "wave"],
+  image: ["jpg", "jpeg", "png", "gif", "webp"],
+  document: [
+    "doc",
+    "pdf",
+    "csv",
+    "docx",
+    "zip",
+    "xlsx",
+    "xls",
+    "rtf",
+    "ppt",
+    "pptx",
+  ],
+  others: ["zip"],
+};
 
 export const fileExists = (file: any) => {
   return new Promise((resolve, reject) => {
@@ -350,7 +369,7 @@ export function parseJSON(value: any): any {
 }
 
 export const uuid = {
-  toBinary: (uuid?: string): Buffer => {
+  toBinary: (uuid?: any): any => {
     if (!uuid) uuid = uuidV1();
     else if (typeof uuid !== "string" && Buffer.isBuffer(uuid)) return uuid;
     const buf = Buffer.from(uuid.replace(/-/g, ""), "hex");
@@ -361,7 +380,7 @@ export const uuid = {
       buf.subarray(8, 16),
     ]);
   },
-  toString: (binary: Buffer): string => {
+  toString: (binary: any): string => {
     if (!binary) throw new Error("Kindly supply binary UUID value");
     if (typeof binary === "string") return binary;
     return [
@@ -372,11 +391,6 @@ export const uuid = {
       binary.toString("hex", 10, 16),
     ].join("-");
   },
-  mysqlBinary: (value: any): any => Sequelize.fn("UUID_TO_BIN", value, 1),
-  mysqlUUID: (field: any): any => [
-    Sequelize.fn("BIN_TO_UUID", Sequelize.col(field), 1),
-    field,
-  ],
   get: (): string => uuidV1(),
   isValid: (uuid: string): boolean => UUIDValidaton(uuid),
   manyToString: (data: any, keys = []) => {
@@ -457,23 +471,36 @@ export const fileManager = {
       data: { fileUrl },
     }),
 
+  getFileFormat: (file: string): string => {
+    if (!file) return file;
+    const format = file.split(".").pop() as string;
+    let fileType = null;
+    for (let type in ALLOWED_FILE_TYPES) {
+      if (ALLOWED_FILE_TYPES[type].includes(format)) fileType = type;
+    }
+    if (fileType === null)
+      throw new ValidationError(`File type(${format}) is not supported`);
+    return fileType;
+  },
+
   url: (relativeUrl: string): string => {
-    if (!relativeUrl) return "";
+    if (!relativeUrl) return relativeUrl;
 
     const urlToken = relativeUrl.split("://");
     if (urlToken.length > 1) return relativeUrl;
 
     const [prefix] = relativeUrl.split("-");
-    let baseUrl = process.env.FILE_MANAGER_MEDIA_URL + "/";
-    let imageUrl = "";
+    const format = fileManager.getFileFormat(relativeUrl);
+    let fullPath = "Invalid";
     if (prefix === "s3") {
-      baseUrl = process.env.AWS_S3_BASE_URL + "/";
-      imageUrl = baseUrl + relativeUrl;
+      if (format === "video")
+        fullPath = `${process.env.VIDEO_SERVICE_URL}/video/play?key=${relativeUrl}`;
+      else fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
     } else {
-      imageUrl =
+      fullPath =
         "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg";
     }
-    return imageUrl;
+    return fullPath;
   },
 };
 
