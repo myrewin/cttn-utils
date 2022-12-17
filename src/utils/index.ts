@@ -263,7 +263,7 @@ export const getContent = async ({
     const result = await Axios(payload);
 
     return result.data;
-  } catch (err) {
+  } catch (err: any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -296,7 +296,7 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err) {
+  } catch (err:any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -661,7 +661,7 @@ export const redirect = (
 
       res.status(response.status).json(response.data);
       res.end();
-    } catch (err) {
+    } catch (err:any) {
       const data = err.response ? err.response.data : errorMessage(err);
       res.status(data.httpStatusCode || 500).json(data);
     }
