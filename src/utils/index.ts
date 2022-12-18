@@ -296,7 +296,7 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err:any) {
+  } catch (err: any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -410,27 +410,29 @@ export const uuid = {
 };
 
 export const fileManager = {
-  upload: (location = "s3") => async (req: any, res: any, next: any) => {
-    try {
-      const pipe = req.pipe(
-        request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
-      );
-      const chunks: any = [];
-      pipe.on("data", (chunk: any) => chunks.push(chunk));
-      pipe.on("end", () => {
-        let result = Buffer.concat(chunks).toString() as any;
-        result = JSON.parse(result);
-        if (result.success === false) {
-          res.send(result);
-          return res.end();
-        }
-        for (let key in result) req[key] = result[key];
-        return next();
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
+  upload:
+    (location = "s3") =>
+    async (req: any, res: any, next: any) => {
+      try {
+        const pipe = req.pipe(
+          request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
+        );
+        const chunks: any = [];
+        pipe.on("data", (chunk: any) => chunks.push(chunk));
+        pipe.on("end", () => {
+          let result = Buffer.concat(chunks).toString() as any;
+          result = JSON.parse(result);
+          if (result.success === false) {
+            res.send(result);
+            return res.end();
+          }
+          for (let key in result) req[key] = result[key];
+          return next();
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
 
   uploadBase64: async (file: any) => {
     try {
@@ -546,124 +548,4 @@ const auth = {
       ? false
       : user.subscribedCourses.includes(courseId) ||
         auth.isCentreManager(user, centreId),
-};
-
-export const redirect = (
-  url: string,
-  config?: {
-    redirectUrl?: string;
-    isBaseUrl?: boolean;
-    updateCentreAuth?: boolean;
-    addUserId?: boolean;
-    addTokenRef?: boolean;
-    userData?: Array<string>;
-    addPermission?: "publication" | "course" | "league" | "exam";
-  }
-) => {
-  return async (req: Request | any, res: Response) => {
-    try {
-      const {
-        isBaseUrl = true,
-        updateCentreAuth = false,
-        addUserId = true,
-        addTokenRef = false,
-        userData = [],
-        redirectUrl,
-        addPermission,
-      } = config || {};
-
-      let payload: Record<string, any> = {
-        method: req.method,
-        headers: {},
-        data: req.body,
-        url,
-      };
-
-      if (redirectUrl) {
-        const utoken = req.url.split("/");
-        const fUrlToken = redirectUrl.split("/:");
-        const urlTokenLength = fUrlToken.length;
-        const fUrl = fUrlToken
-          .map((item, index) => {
-            const token = parseInt(item);
-            if (isNaN(token))
-              return urlTokenLength - 1 === index ? item : `${item}/`;
-            return urlTokenLength - 1 === index
-              ? `${utoken[token]}`
-              : `${utoken[token]}/`;
-          })
-          .join("");
-
-        payload.url = `${url}${fUrl}`;
-      } else {
-        payload.url += req.url;
-      }
-
-      const user = req?.user;
-
-      if (req.headers.authorization)
-        payload.headers["authorization"] = req.headers.authorization;
-      if (req.file) payload.data.file = req.file;
-      if (req.files) payload.data.files = req.files;
-      if (addUserId && user) payload.headers.userId = user.id;
-      if (addTokenRef && user) payload.headers.tokenRef = user.tokenRef;
-      if (req.headers.contentid)
-        payload.headers.contentid = req.headers.contentid;
-      if (req.headers.transactionkey)
-        payload.headers.transactionkey = req.headers.transactionkey;
-      if (userData.length > 0 && user) {
-        userData.forEach((key) => {
-          payload.data[key] = user[key];
-        });
-        if (userData.includes("name"))
-          payload.data["name"] = `${user.firstname} ${user.lastname}`;
-        if (payload.data.id) {
-          payload.data.userId = user.id;
-          delete payload.data.id;
-        }
-      }
-      const response = await Axios(payload);
-
-      if (addPermission && user) {
-        const permissions: any = {};
-        if (addPermission === "course") {
-          const { centreId, courseId = null } = req.params;
-
-          permissions.isCentreManager = auth.isCentreManager(user, centreId);
-          permissions.isCentreSubscriber = auth.isCentreSubscriber(
-            user,
-            centreId
-          );
-          if (courseId)
-            permissions.isCourseSubscriber = auth.isCourseSubscriber(
-              user,
-              centreId,
-              courseId
-            );
-        } else if (addPermission === "publication") {
-          const { centreId, publicationId } = req.params;
-
-          permissions.isCentreManager = auth.isCentreManager(user, centreId);
-          permissions.isCentreSubscriber = auth.isCentreSubscriber(
-            user,
-            centreId
-          );
-          if (publicationId)
-            permissions.isPublicationSubscriber = auth.isPublicationSubscriber(
-              user,
-              centreId,
-              publicationId
-            );
-        }
-
-        response.data.auth = permissions;
-      }
-
-      res.status(response.status).json(response.data);
-      res.end();
-    } catch (err:any) {
-      const data = err.response ? err.response.data : errorMessage(err);
-      res.status(data.httpStatusCode || 500).json(data);
-    }
-  };
 };
