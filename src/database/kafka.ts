@@ -109,7 +109,12 @@ export class Kafka {
     cb,
   }: ConsumerInt): Promise<void> {
     const consumer = this.client.consumer({ groupId });
-    await consumer.subscribe({ topic, fromBeginning });
+
+    const params: any = { fromBeginning };
+    if (typeof topic === "string") params.topic = topic;
+    else params.topics = topic;
+
+    await consumer.subscribe(params);
     consumer.run({
       eachMessage: async ({ message, partition, topic }) => {
         cb({
