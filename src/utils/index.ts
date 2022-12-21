@@ -450,15 +450,9 @@ export const fileManager = {
     if (!fileUrl) return;
     fileUrl = typeof fileUrl === "string" ? fileUrl : JSON.stringify(fileUrl);
     await getContent({
-      url: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}`,
+      url: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}&bunnyVideoId=${bunnnyVideoId}`,
       method: "DELETE",
     });
-    if (bunnnyVideoId) {
-      await getContent({
-        url: `${process.env.BUNNY_CDN_BASE_URL}/library/${process.env.BUNNY_STREAM_LIBRARY_ID}/video/${bunnnyVideoId}`,
-        method: "DELETE"
-      })
-    }
   },
 
   resizeImage: async (
