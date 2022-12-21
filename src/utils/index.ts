@@ -446,11 +446,11 @@ export const fileManager = {
     }
   },
 
-  remove: async (fileUrl: string | Array<string>, bunnnyVideoId?:string) => {
+  remove: async (fileUrl: string | Array<string>, bunnyVideoId?:string) => {
     if (!fileUrl) return;
     fileUrl = typeof fileUrl === "string" ? fileUrl : JSON.stringify(fileUrl);
     await getContent({
-      url: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}&bunnyVideoId=${bunnnyVideoId}`,
+      url: bunnyVideoId? `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}&bunnyVideoId=${bunnyVideoId}`: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}`,
       method: "DELETE",
     });
   },
