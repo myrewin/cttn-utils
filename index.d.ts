@@ -178,7 +178,7 @@ interface CttnMessageHander {
 }
 export interface ConsumerInt {
   groupId: string;
-  topic: string;
+  topic: string | string[];
   fromBeginning: boolean;
   cb(obj: CttnMessageHander): Promise<void>;
 }
