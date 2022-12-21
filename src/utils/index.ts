@@ -446,13 +446,19 @@ export const fileManager = {
     }
   },
 
-  remove: async (fileUrl: string | Array<string>) => {
+  remove: async (fileUrl: string | Array<string>, bunnnyVideoId?:string) => {
     if (!fileUrl) return;
     fileUrl = typeof fileUrl === "string" ? fileUrl : JSON.stringify(fileUrl);
     await getContent({
       url: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}`,
       method: "DELETE",
     });
+    if (bunnnyVideoId) {
+      await getContent({
+        url: `${process.env.BUNNY_CDN_BASE_URL}/library/${process.env.BUNNY_STREAM_LIBRARY_ID}/video/${bunnnyVideoId}`,
+        method: "DELETE"
+      })
+    }
   },
 
   resizeImage: async (
@@ -490,12 +496,15 @@ export const fileManager = {
     if (urlToken.length > 1) return relativeUrl;
 
     const [prefix] = relativeUrl.split("-");
-    //const format = fileManager.getFileFormat(relativeUrl);
+    const format = fileManager.getFileFormat(relativeUrl);
     let fullPath = "Invalid";
     if (prefix === "s3") {
-      fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
+      if (format === "video")
+        fullPath = `${process.env.VIDEO_SERVICE_URL}/video/play?key=${relativeUrl}`;
+      else fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
     } else {
-      fullPath = `https://video.bunnycdn.com/play/${relativeUrl}`;
+      fullPath =
+        "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg";
     }
     return fullPath;
   },
