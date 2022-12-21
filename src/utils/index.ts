@@ -296,7 +296,7 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err:any) {
+  } catch (err: any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -410,27 +410,29 @@ export const uuid = {
 };
 
 export const fileManager = {
-  upload: (location = "s3") => async (req: any, res: any, next: any) => {
-    try {
-      const pipe = req.pipe(
-        request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
-      );
-      const chunks: any = [];
-      pipe.on("data", (chunk: any) => chunks.push(chunk));
-      pipe.on("end", () => {
-        let result = Buffer.concat(chunks).toString() as any;
-        result = JSON.parse(result);
-        if (result.success === false) {
-          res.send(result);
-          return res.end();
-        }
-        for (let key in result) req[key] = result[key];
-        return next();
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
+  upload:
+    (location = "s3") =>
+    async (req: any, res: any, next: any) => {
+      try {
+        const pipe = req.pipe(
+          request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
+        );
+        const chunks: any = [];
+        pipe.on("data", (chunk: any) => chunks.push(chunk));
+        pipe.on("end", () => {
+          let result = Buffer.concat(chunks).toString() as any;
+          result = JSON.parse(result);
+          if (result.success === false) {
+            res.send(result);
+            return res.end();
+          }
+          for (let key in result) req[key] = result[key];
+          return next();
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
 
   uploadBase64: async (file: any) => {
     try {
@@ -444,13 +446,19 @@ export const fileManager = {
     }
   },
 
-  remove: async (fileUrl: string | Array<string>) => {
+  remove: async (fileUrl: string | Array<string>, bunnnyVideoId?:string) => {
     if (!fileUrl) return;
     fileUrl = typeof fileUrl === "string" ? fileUrl : JSON.stringify(fileUrl);
     await getContent({
       url: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}`,
       method: "DELETE",
     });
+    if (bunnnyVideoId) {
+      await getContent({
+        url: `${process.env.BUNNY_CDN_BASE_URL}/library/${process.env.BUNNY_STREAM_LIBRARY_ID}/video/${bunnnyVideoId}`,
+        method: "DELETE"
+      })
+    }
   },
 
   resizeImage: async (
@@ -488,12 +496,15 @@ export const fileManager = {
     if (urlToken.length > 1) return relativeUrl;
 
     const [prefix] = relativeUrl.split("-");
-    //const format = fileManager.getFileFormat(relativeUrl);
+    const format = fileManager.getFileFormat(relativeUrl);
     let fullPath = "Invalid";
     if (prefix === "s3") {
-      fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
+      if (format === "video")
+        fullPath = `${process.env.VIDEO_SERVICE_URL}/video/play?key=${relativeUrl}`;
+      else fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
     } else {
-      fullPath = `https://video.bunnycdn.com/play/${relativeUrl}`;
+      fullPath =
+        "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg";
     }
     return fullPath;
   },
@@ -661,7 +672,7 @@ export const redirect = (
 
       res.status(response.status).json(response.data);
       res.end();
-    } catch (err:any) {
+    } catch (err: any) {
       const data = err.response ? err.response.data : errorMessage(err);
       res.status(data.httpStatusCode || 500).json(data);
     }
