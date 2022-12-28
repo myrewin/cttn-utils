@@ -1,20 +1,16 @@
 import { access, unlink, constants, mkdir, writeFile } from "fs";
 
 import { Request, Response, NextFunction } from "express";
-
 import multer from "multer";
-
 import Slugify from "slugify";
-
-import Axios, { AxiosResponse } from "axios";
-
+import Axios from "axios";
 import jwt from "jsonwebtoken";
 
 import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
 import request from "request";
 
-import { errorMessage, ValidationError } from "../errors/index.js";
+import { ValidationError } from "../errors/index.js";
 
 export const CONTENT_GROUP = ["video", "audio", "document", "image", "others"];
 
@@ -248,7 +244,7 @@ export const getContent = async ({
   headers?: Record<string, any>;
   token?: string;
   data?: Record<string, any>;
-}): Promise<AxiosResponse> => {
+}): Promise<Record<string, any>> => {
   try {
     headers["X-Requested-With"] = "XMLHttpRequest";
     token && (headers["Authorization"] = token);
@@ -283,7 +279,7 @@ export const postContent = async ({
   data?: Record<string, any>;
   method?: "POST" | "PATCH" | "PUT";
   headers?: Record<string, any>;
-}): Promise<AxiosResponse> => {
+}): Promise<Record<string, any>> => {
   try {
     headers["X-Requested-With"] = "XMLHttpRequest";
     token && (headers["Authorization"] = token);
@@ -446,11 +442,13 @@ export const fileManager = {
     }
   },
 
-  remove: async (fileUrl: string | Array<string>, bunnyVideoId?:string) => {
+  remove: async (fileUrl: string | Array<string>, bunnyVideoId?: string) => {
     if (!fileUrl) return;
     fileUrl = typeof fileUrl === "string" ? fileUrl : JSON.stringify(fileUrl);
     await getContent({
-      url: bunnyVideoId? `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}&bunnyVideoId=${bunnyVideoId}`: `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}`,
+      url: bunnyVideoId
+        ? `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}&bunnyVideoId=${bunnyVideoId}`
+        : `${process.env.FILE_MANAGER_URL}?fileUrl=${fileUrl}`,
       method: "DELETE",
     });
   },
@@ -493,7 +491,6 @@ export const fileManager = {
     const format = fileManager.getFileFormat(relativeUrl);
     let fullPath = "Invalid";
     if (prefix === "s3") {
-      
       fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
     } else {
       fullPath =
