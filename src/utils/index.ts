@@ -8,9 +8,8 @@ import jwt from "jsonwebtoken";
 
 import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
-import request from "request";
-
 import { ValidationError } from "../errors/index.js";
+import got from "got";
 
 export const CONTENT_GROUP = ["video", "audio", "document", "image", "others"];
 
@@ -410,9 +409,8 @@ export const fileManager = {
     (location = "s3") =>
     async (req: any, res: any, next: any) => {
       try {
-        const pipe = req.pipe(
-          request(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
-        );
+        const pipe = got.stream.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
+        
         const chunks: any = [];
         pipe.on("data", (chunk: any) => chunks.push(chunk));
         pipe.on("end", () => {
