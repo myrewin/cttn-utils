@@ -1,7 +1,7 @@
 import Ioredis from "ioredis";
 
-import { ValidationError } from "../errors";
-import { parseJSON } from "../utils";
+import { ValidationError } from "../errors/index.js";
+import { parseJSON } from "../utils/index.js";
 
 export class Redis {
   private client;
@@ -63,5 +63,3 @@ export class Redis {
     return Boolean(await this.client.del(key));
   }
 }
-
-export default Redis;

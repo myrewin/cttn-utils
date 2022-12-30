@@ -410,7 +410,7 @@ export const fileManager = {
     async (req: any, res: any, next: any) => {
       try {
         const pipe = got.stream.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
-        
+
         const chunks: any = [];
         pipe.on("data", (chunk: any) => chunks.push(chunk));
         pipe.on("end", () => {
