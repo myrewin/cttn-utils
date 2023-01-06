@@ -406,28 +406,27 @@ export const uuid = {
 
 export const fileManager = {
   upload:
-    (location = "s3") =>
-    async (req: any, res: any, next: any) => {
-      try {
-        const pipe = got.stream.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location)
-        
-        const chunks: any = [];
-        pipe.on("data", (chunk: any) => chunks.push(chunk));
-        pipe.on("end", () => {
-          let result = Buffer.concat(chunks).toString() as any;
-          result = JSON.parse(result);
-          if (result.success === false) {
-            res.send(result);
-            return res.end();
-          }
-          for (let key in result) req[key] = result[key];
-          return next();
-        });
-      } catch (err) {
-        next(err);
-      }
-    },
-
+  (location = "s3") =>
+  async (req: any, res: any, next: any) => {
+    try {
+      const pipe = req.pipe(got.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location, {isStream:true}))
+      
+      const chunks: any = [];
+      pipe.on("data", (chunk: any) => chunks.push(chunk));
+      pipe.on("end", () => {
+        let result = Buffer.concat(chunks).toString() as any;
+        result = JSON.parse(result);
+        if (result.success === false) {
+          res.send(result);
+          return res.end();
+        }
+        for (let key in result) req[key] = result[key];
+        return next();
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
   uploadBase64: async (file: any) => {
     try {
       const result = (await postContent({
