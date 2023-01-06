@@ -1,6 +1,6 @@
 {
   "name": "@myrewin/cttn-utils",
-  "version": "1.1.35",
+  "version": "1.1.36",
   "description": "Utility tools for all cttn micro services",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "got": "^11.8.3",
+    "got": "^12.5.3",
     "ioredis": "^5.2.4",
     "jsonwebtoken": "^9.0.0",
     "kafkajs": "^2.2.3",
