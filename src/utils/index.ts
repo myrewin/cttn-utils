@@ -409,8 +409,7 @@ export const fileManager = {
   (location = "s3") =>
   async (req: any, res: any, next: any) => {
     try {
-      const pipe = req.pipe(got.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location, {isStream:true}))
-      
+      const pipe = req.pipe(got.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location, { isStream: true }))
       const chunks: any = [];
       pipe.on("data", (chunk: any) => chunks.push(chunk));
       pipe.on("end", () => {
@@ -423,8 +422,18 @@ export const fileManager = {
         for (let key in result) req[key] = result[key];
         return next();
       });
+
+      pipe.on("error", (err: any) => {
+        res.status(500).json({
+          success: false,
+          data: [],
+          message: "File Upload Connection Error"
+        })
+        next(err)
+      })
+      
     } catch (err) {
-      next(err);
+      throw err
     }
   },
   uploadBase64: async (file: any) => {
