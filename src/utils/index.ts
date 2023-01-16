@@ -424,11 +424,7 @@ export const fileManager = {
       });
 
       pipe.on("error", (err: any) => {
-        res.status(500).json({
-          success: false,
-          data: [],
-          message: "File Upload Connection Error"
-        })
+        res.end()
         next(err)
       })
       
