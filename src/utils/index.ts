@@ -558,12 +558,12 @@ export const contentPriceValidator = (
 ) => {
   if (!price) return { price: 0, currency: "" };
   if (price > 0 && !currency) throw new ValidationError("currency is required");
-  if (price) {
-    const getCurrency = supportedCurrencies[currency];
-    if (price < getCurrency.minimumValue)
-      throw new ValidationError(
-        `minimum price for this currency is ${getCurrency.minimumValue} ${getCurrency.name}`
-      );
-    return { price, currency };
-  }
+  
+  const getCurrency = supportedCurrencies[currency];
+  if (price < getCurrency.minimumValue)
+    throw new ValidationError(
+      `minimum price for this currency is ${getCurrency.minimumValue} ${getCurrency.name}`
+    );
+  return { price, currency };
+
 };
