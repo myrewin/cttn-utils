@@ -224,3 +224,9 @@ export declare class Redis {
   get(key: string, parse?: boolean): Promise<any>;
   delete(key: string): Promise<boolean>;
 }
+
+export declare const contentPriceValidator: (
+  price: number,
+  currency: string,
+  supportedCurrencies: Record<string, any>
+) => Record<string, any>;
