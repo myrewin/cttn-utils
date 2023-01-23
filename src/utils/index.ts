@@ -559,7 +559,7 @@ export const contentPriceValidator = (
   currency: string,
   supportedCurrencies: Record<string, any>
 ) => {
-  if (!price) return { price: 0, currency: currency ? currency:"NGN" };
+  if (!price) return { price: 0, currency:"NGN" };
   const currencyData = supportedCurrencies[currency];
   if (!currencyData) throw new ValidationError("Currency not supported");
   const { minimumValue, name } = currencyData;
