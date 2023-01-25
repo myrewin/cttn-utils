@@ -223,6 +223,14 @@ export declare class Redis {
   setEx(key: string, data: any, duration: number | string): Promise<any>;
   get(key: string, parse?: boolean): Promise<any>;
   delete(key: string): Promise<boolean>;
+  getCachedUser(id: string, throwError?: boolean): Promise<any>;
+  cacheUser(user: any): Promise<void>;
+  updateAuthData(
+    userId: string,
+    key: string,
+    value: string,
+    action?: string
+  ): Promise<void>;
 }
 
 export declare const contentPriceValidator: (
