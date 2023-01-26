@@ -573,17 +573,25 @@ export const contentPriceValidator = (
   return { price, currency };
 };
 
-export const toExcel = async (data: Array<Record<string, any>>, fileDir:string):Promise<void> => {
+export const toExcel = async (data: Array<Record<string, any>>, fileName:string) => {
   if (data.length === 0) throw new ValidationError("File upload cannot be empty")
-  const xls = json2xls(data);
-  writeFile(fileDir, xls, "utf-8", (err: any) => {
-      if (err) devLog("writeFileError:", err);
-     devLog(" file is saved!");
-    });
+  const headerType = {
+    "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "Content-Disposition": "attachment; filename="+fileName
+  }
+
+  const exportDoc = json2xls(data);
+
+  return {exportDoc, headerType}
 }
 
-export const toPDF = async (data: Array<Record<string, any>>, fileDir:string, pageTitle?:string):Promise<void> => {
+export const toPDF = async (data: Array<Record<string, any>>, fileName:string, pageTitle?:string):Promise<Record<string,any>> => {
   if (data.length === 0) throw new ValidationError("File upload cannot be empty")
+
+  const headerType = {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": "attachment; filename="+fileName
+  }
 
   pageTitle = pageTitle ? pageTitle: "Report"
   
@@ -634,14 +642,15 @@ export const toPDF = async (data: Array<Record<string, any>>, fileDir:string, pa
   table += "</div>";
   table += "</body></html>";
 
+ 
+
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setContent(table, { waitUntil: "domcontentloaded" });
 
   await page.emulateMediaType("screen");
 
-  await page.pdf({
-    path: fileDir,
+  const exportDoc = await page.pdf({
     margin: { top: "100px", right: "50px", bottom: "100px", left: "50px" },
     printBackground: true,
     format: "A4",
@@ -649,4 +658,6 @@ export const toPDF = async (data: Array<Record<string, any>>, fileDir:string, pa
   });
 
   await browser.close();
+
+  return {exportDoc, headerType}
 }
