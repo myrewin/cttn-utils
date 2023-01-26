@@ -230,3 +230,6 @@ export declare const contentPriceValidator: (
   currency: string,
   supportedCurrencies: Record<string, any>
 ) => Record<string, any>;
+
+export declare const toExcel: (data: any, fileDir:string) => Promise<void>;
+export declare const toPdf: (data: Array<Record<string,any>>, title: string ) => Promise<void>;

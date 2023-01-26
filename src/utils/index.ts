@@ -1,5 +1,5 @@
-import { access, unlink, constants, mkdir, writeFile } from "fs";
-
+import { access, unlink, constants, mkdir, writeFile, createReadStream } from "fs";
+import json2xls from 'json2xls'
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import Slugify from "slugify";
@@ -10,6 +10,9 @@ import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
 import { ValidationError } from "../errors/index.js";
 import got from "got";
+import path from "path";
+import puppeteer from "puppeteer";
+import moment from "moment";
 
 export const CONTENT_GROUP = ["video", "audio", "document", "image", "others"];
 
@@ -569,3 +572,81 @@ export const contentPriceValidator = (
     );
   return { price, currency };
 };
+
+export const toExcel = async (data: Array<Record<string, any>>, fileDir:string):Promise<void> => {
+  if (data.length === 0) throw new ValidationError("File upload cannot be empty")
+  const xls = json2xls(data);
+  writeFile(fileDir, xls, "utf-8", (err: any) => {
+      if (err) devLog("writeFileError:", err);
+     devLog(" file is saved!");
+    });
+}
+
+export const toPDF = async (data: Array<Record<string, any>>, fileDir:string, pageTitle?:string):Promise<void> => {
+  if (data.length === 0) throw new ValidationError("File upload cannot be empty")
+
+  pageTitle = pageTitle ? pageTitle: "Report"
+  
+  let table = `
+  <html> 
+  <style>
+    #table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    #table td, #table th {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+    }
+
+    #table tr:nth-child(even){background-color:#f2f2f2;}
+
+    #table tr:hover {background-color: #ddd;}
+
+    #table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #F57E27;
+    color: white;
+    }
+  </style>
+  <body>
+  <h2>${pageTitle}</h2> 
+  <i>(${moment().format("MMMM Do YYYY")})</i>`;
+  table += "<div style='overflow-x: auto;'>";
+  table += "<table id='table'>";
+  table += "<tr>";
+  table += "<th>S/N </th>";
+  Object.keys(data[0]).forEach((item) => (table += `<th>${item}</th>`));
+  table += "</tr>";
+
+  data.forEach(function (row, index) {
+    table += "<tr>";
+    table += `<td>${index + 1}</td>`;
+    Object.values(row).forEach((item) => (table += `<td>${item}</td>`));
+    table += "</tr>";
+  });
+  table += "</table>";
+  table += "</div>";
+  table += "</body></html>";
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(table, { waitUntil: "domcontentloaded" });
+
+  await page.emulateMediaType("screen");
+
+  await page.pdf({
+    path: fileDir,
+    margin: { top: "100px", right: "50px", bottom: "100px", left: "50px" },
+    printBackground: true,
+    format: "A4",
+    landscape: true,
+  });
+
+  await browser.close();
+}
