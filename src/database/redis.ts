@@ -1,6 +1,6 @@
 import Ioredis from "ioredis";
 
-import { ValidationError } from "../errors/index.js";
+import { AuthenticationError, ValidationError } from "../errors/index.js";
 import { parseJSON } from "../utils/index.js";
 
 export class Redis {
@@ -61,5 +61,41 @@ export class Redis {
       throw new ValidationError("Redis key must be a string");
 
     return Boolean(await this.client.del(key));
+  }
+
+  async getCachedUser(id: string, throwError = true): Promise<any> {
+    let userToken = `${id}-token`;
+    const user = await this.client.get(userToken);
+    if (!user && throwError)
+      throw new AuthenticationError("Kindly login, user not found");
+    return parseJSON(user);
+  }
+
+  async cacheUser(user: any): Promise<void> {
+    await Promise.all([
+      this.set(user.tokenRef, user),
+      this.set(`${user.id}-token`, user),
+    ]);
+  }
+
+  async updateAuthData(
+    userId: string,
+    key: string,
+    value: string,
+    action = "ADD"
+  ): Promise<void> {
+    const user = await this.getCachedUser(userId, false);
+
+    if (!user) return;
+
+    if (Array.isArray(user[key])) {
+      if (action === "ADD") user[key].push(value);
+      else if (action === "REMOVE") {
+        user[key].splice(user[key].indexOf(value), 1);
+      }
+      await this.cacheUser(user);
+    }
+
+    return parseJSON(user);
   }
 }
