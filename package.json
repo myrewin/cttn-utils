@@ -38,6 +38,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@json2csv/plainjs": "^6.1.2",
     "axios": "^0.27.2",
     "got": "^12.5.3",
     "ioredis": "^5.2.4",

@@ -1,5 +1,6 @@
 import { access, unlink, constants, mkdir, writeFile, createReadStream } from "fs";
 import json2xls from 'json2xls'
+import { Parser } from '@json2csv/plainjs';
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import Slugify from "slugify";
@@ -573,7 +574,7 @@ export const contentPriceValidator = (
   return { price, currency };
 };
 
-export const toExcel = async (data: Array<Record<string, any>>, fileName:string) => {
+export const toExcel = async (data: Array<Record<string, any>>, fileName:string):Promise<Record<string,any>> => {
   if (data.length === 0) throw new ValidationError("File upload cannot be empty")
   const headerType = {
     "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -581,6 +582,19 @@ export const toExcel = async (data: Array<Record<string, any>>, fileName:string)
   }
 
   const exportDoc = json2xls(data);
+
+  return {exportDoc, headerType}
+}
+
+export const toCSV = async (data: Array<Record<string, any>>, fileName:string):Promise<Record<string,any>> => {
+  if (data.length === 0) throw new ValidationError("File upload cannot be empty")
+  const headerType = {
+    "Content-Type": "text/csv",
+    "Content-Disposition": "attachment; filename=" + fileName,
+  }
+
+  const parser = new Parser();
+  const exportDoc = parser.parse(data);
 
   return {exportDoc, headerType}
 }
@@ -644,9 +658,9 @@ export const toPDF = async (data: Array<Record<string, any>>, fileName:string, p
 
  
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({headless:true});
   const page = await browser.newPage();
-  await page.setContent(table, { waitUntil: "domcontentloaded" });
+  await page.setContent(table, { waitUntil: 'networkidle0' });
 
   await page.emulateMediaType("screen");
 
