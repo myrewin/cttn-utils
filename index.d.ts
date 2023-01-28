@@ -1,4 +1,5 @@
 import { KafkaMessage } from "kafkajs";
+import { PaperFormat } from "puppeteer";
 
 export declare class ValidationError extends Error {
   httpStatusCode: number;
@@ -241,13 +242,23 @@ export declare const contentPriceValidator: (
 
 export declare const toExcel: (
   data: any,
-  fileName: string
+  fileName: string,
+  fileDir: string
 ) => Promise<Record<string, any>>;
 export declare const toCSV: (
   data: any,
-  fileName: string
+  fileName: string,
+  fileDir: string
 ) => Promise<Record<string, any>>;
+
 export declare const toPdf: (
   data: Array<Record<string, any>>,
-  title: string
+  config:{
+    fileName?: string;
+    htmlTemplate?: string;
+    fileDir?: string;
+    pageTitle?: string;
+    orientation?: string,
+    paperSize?:PaperFormat
+  }
 ) => Promise<Record<string, any>>;
