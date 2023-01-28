@@ -243,22 +243,23 @@ export declare const contentPriceValidator: (
 export declare const toExcel: (
   data: any,
   fileName: string,
-  fileDir: string
+  fileDir?: string
 ) => Promise<Record<string, any>>;
+
 export declare const toCSV: (
   data: any,
   fileName: string,
-  fileDir: string
+  fileDir?: string
 ) => Promise<Record<string, any>>;
 
 export declare const toPdf: (
   data: Array<Record<string, any>>,
-  config:{
+  config: {
     fileName?: string;
     htmlTemplate?: string;
     fileDir?: string;
     pageTitle?: string;
-    orientation?: string,
-    paperSize?:PaperFormat
+    orientation?: string;
+    paperSize?: PaperFormat;
   }
 ) => Promise<Record<string, any>>;

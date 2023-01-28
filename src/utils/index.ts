@@ -581,19 +581,27 @@ export const contentPriceValidator = (
 
 export const toExcel = async (
   data: Array<Record<string, any>>,
-  fileName: string
+  fileName: string,
+  fileDir?: string
 ): Promise<Record<string, any>> => {
   if (data.length === 0)
     throw new ValidationError("File upload cannot be empty");
-  const headerType = {
+  const headers = {
     "Content-Type":
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "Content-Disposition": "attachment; filename=" + fileName,
+    "Content-Disposition": `attachment; filename='${fileName}'`,
   };
 
   const exportDoc = json2xls(data);
 
-  return { exportDoc, headerType };
+  if (fileDir) {
+    writeFile(fileDir, exportDoc, (err) => {
+      if (err) devLog(err)
+      devLog("File saved to directory")
+    })
+  }
+
+  return { exportDoc, headers };
 };
 
 export const toCSV = async (
