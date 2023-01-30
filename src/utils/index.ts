@@ -1,5 +1,13 @@
-import { access, unlink, constants, mkdir, writeFile } from "fs";
-
+import {
+  access,
+  unlink,
+  constants,
+  mkdir,
+  writeFile,
+  createReadStream,
+} from "fs";
+import json2xls from "json2xls";
+import { Parser } from "@json2csv/plainjs";
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import Slugify from "slugify";
@@ -10,6 +18,9 @@ import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
 import { ValidationError } from "../errors/index.js";
 import got from "got";
+import path from "path";
+import puppeteer, { PaperFormat } from "puppeteer";
+import moment from "moment";
 
 export const CONTENT_GROUP = ["video", "audio", "document", "image", "others"];
 
@@ -258,7 +269,7 @@ export const getContent = async ({
     const result = await Axios(payload);
 
     return result.data;
-  } catch (err: any) {
+  } catch (err:any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -291,7 +302,7 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err: any) {
+  } catch (err:any) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -405,36 +416,34 @@ export const uuid = {
 };
 
 export const fileManager = {
-  upload:
-    (location = "s3") =>
-    async (req: any, res: any, next: any) => {
-      try {
-        const pipe = req.pipe(
-          got.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location, {
-            isStream: true,
-          })
-        );
-        const chunks: any = [];
-        pipe.on("data", (chunk: any) => chunks.push(chunk));
-        pipe.on("end", () => {
-          let result = Buffer.concat(chunks).toString() as any;
-          result = JSON.parse(result);
-          if (result.success === false) {
-            res.send(result);
-            return res.end();
-          }
-          for (let key in result) req[key] = result[key];
-          return next();
-        });
+  upload: (location = "s3") => async (req: any, res: any, next: any) => {
+    try {
+      const pipe = req.pipe(
+        got.post(process.env.FILE_MANAGER_URL + "/file-upload/" + location, {
+          isStream: true,
+        })
+      );
+      const chunks: any = [];
+      pipe.on("data", (chunk: any) => chunks.push(chunk));
+      pipe.on("end", () => {
+        let result = Buffer.concat(chunks).toString() as any;
+        result = JSON.parse(result);
+        if (result.success === false) {
+          res.send(result);
+          return res.end();
+        }
+        for (let key in result) req[key] = result[key];
+        return next();
+      });
 
-        pipe.on("error", (err: any) => {
-          res.end();
-          next(err);
-        });
-      } catch (err) {
-        throw err;
-      }
-    },
+      pipe.on("error", (err: any) => {
+        res.end();
+        next(err);
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
   uploadBase64: async (file: any) => {
     try {
       const result = (await postContent({
@@ -559,7 +568,7 @@ export const contentPriceValidator = (
   currency: string,
   supportedCurrencies: Record<string, any>
 ) => {
-  if (!price) return { price: 0, currency:"NGN" };
+  if (!price) return { price: 0, currency: "NGN" };
   const currencyData = supportedCurrencies[currency];
   if (!currencyData) throw new ValidationError("Currency not supported");
   const { minimumValue, name } = currencyData;
@@ -568,4 +577,145 @@ export const contentPriceValidator = (
       `minimum price for this currency is ${minimumValue} ${name}`
     );
   return { price, currency };
+};
+
+export const toExcel = async (
+  data: Array<Record<string, any>>,
+  fileName: string,
+  fileDir?: string
+): Promise<Record<string, any>> => {
+  if (data.length === 0)
+    throw new ValidationError("File upload cannot be empty");
+  const headers = {
+    "Content-Type":
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "Content-Disposition": `attachment; filename='${fileName}'`,
+  };
+
+  const exportDoc = json2xls(data);
+
+  if (fileDir) {
+    writeFile(fileDir, exportDoc, (err) => {
+      if (err) devLog(err)
+      devLog("File saved to directory")
+    })
+  }
+
+  return { exportDoc, headers };
+};
+
+export const toCSV = async (
+  data: Array<Record<string, any>>,
+  fileName: string,
+  fileDir?: string
+): Promise<Record<string, any>> => {
+  if (data.length === 0)
+    throw new ValidationError("File upload cannot be empty");
+  const headers = {
+    "Content-Type": "text/csv",
+    "Content-Disposition": `attachment; filename='${fileName}'`,
+  };
+
+  const parser = new Parser();
+  const exportDoc = parser.parse(data);
+
+  if (fileDir) {
+    writeFile(fileDir, exportDoc, (err) => {
+      if (err) devLog(err)
+      devLog("File saved to directory")
+    })
+  }
+
+  return { exportDoc, headers };
+};
+
+export const toPDF = async (
+  data: Array<Record<string, any>>,
+  config: {
+    fileName?: string;
+    htmlTemplate?: string;
+    fileDir?: string;
+    pageTitle?: string;
+    orientation?: string;
+    paperSize?: PaperFormat;
+  }
+): Promise<Record<string, any>> => {
+  if (data.length === 0)
+    throw new ValidationError("File upload cannot be empty");
+
+  let { fileName, htmlTemplate, fileDir, pageTitle, orientation, paperSize } =
+    config || {};
+
+  const headers = {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename='${fileName}'`,
+  };
+
+  pageTitle = pageTitle ? pageTitle : "Report";
+
+  let table = `
+  <html> 
+  <style>
+    #table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    #table td, #table th {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+    }
+
+    #table tr:nth-child(even){background-color:#f2f2f2;}
+
+    #table tr:hover {background-color: #ddd;}
+
+    #table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #F57E27;
+    color: white;
+    }
+  </style>
+  <body>
+  <h2>${pageTitle}</h2> 
+  <i>(${moment().format("MMMM Do YYYY")})</i>`;
+  table += "<div style='overflow-x: auto;'>";
+  table += "<table id='table'>";
+  table += "<tr>";
+  table += "<th>S/N </th>";
+  Object.keys(data[0]).forEach((item) => (table += `<th>${item}</th>`));
+  table += "</tr>";
+
+  data.forEach(function (row, index) {
+    table += "<tr>";
+    table += `<td>${index + 1}</td>`;
+    Object.values(row).forEach((item) => (table += `<td>${item}</td>`));
+    table += "</tr>";
+  });
+  table += "</table>";
+  table += "</div>";
+  table += "</body></html>";
+
+  const file = htmlTemplate ? htmlTemplate : table;
+
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.setContent(file, { waitUntil: "domcontentloaded" });
+  await page.emulateMediaType("screen");
+
+  const exportDoc = await page.pdf({
+    path: fileDir ? fileDir : "",
+    margin: { top: "20px", right: "10px", bottom: "20px", left: "10px" },
+    printBackground: true,
+    format: paperSize ? paperSize : "A4",
+    landscape: orientation === "landscape" ? true : false,
+  });
+
+  await browser.close();
+
+  return { exportDoc, headers };
 };
