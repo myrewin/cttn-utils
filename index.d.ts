@@ -252,7 +252,7 @@ export declare const toCSV: (
   fileDir?: string
 ) => Promise<Record<string, any>>;
 
-export declare const toPdf: (
+export declare const toPDF: (
   data: Array<Record<string, any>>,
   config: {
     fileName?: string;
@@ -263,3 +263,6 @@ export declare const toPdf: (
     paperSize?: PaperFormat;
   }
 ) => Promise<Record<string, any>>;
+
+declare module 'json2xls';
+declare module '@json2csv/plainjs';
