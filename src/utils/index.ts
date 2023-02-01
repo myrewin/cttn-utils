@@ -665,7 +665,7 @@ export const toPDF = async (
     #table td, #table th {
     border: 1px solid #ddd;
     text-align: left;
-    padding: 8px;
+    padding: 2px;
     }
 
     #table tr:nth-child(even){background-color:#f2f2f2;}
@@ -702,7 +702,7 @@ export const toPDF = async (
 
   const file = htmlTemplate ? htmlTemplate : table;
 
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setContent(file, { waitUntil: "domcontentloaded" });
   await page.emulateMediaType("screen");
