@@ -125,8 +125,20 @@ export const errorMessage = (err: any = void 0, ERROR_TYPE = "FATAL_ERROR") => {
       err.service || process.env.APP_NAME || process.env.SERVICE_NAME;
 
     if (err.isAxiosError) {
-      response.message =
-        err?.response?.data?.message || err?.message || "Something went wrong";
+      if (
+        err.response.data instanceof Uint8Array ||
+        err.response.data instanceof ArrayBuffer
+      ) {
+        response.message =
+          JSON.parse(err?.response?.data.toString()).message ||
+          "Something went wrong";
+      } else {
+        response.message =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Something went wrong";
+      }
+
       response.httpStatusCode =
         err?.response?.data?.httpStatusCode || err?.response?.status;
       response.error =
@@ -134,12 +146,12 @@ export const errorMessage = (err: any = void 0, ERROR_TYPE = "FATAL_ERROR") => {
         HTTP_STATUS_CODE_ERROR[response.httpStatusCode] ||
         ERROR_TYPE;
     }
-
     return response;
-  } catch (err: any) {
+  } catch (err) {
     return {
       success: false,
-      message: err?.message || "Something went wrong",
+      message:
+        err?.response?.data.message || err?.message || "Something went wrong",
       error: ERROR_TYPE,
       service: err.service || process.env.APP_NAME || process.env.SERVICE_NAME,
       httpStatusCode: 500,

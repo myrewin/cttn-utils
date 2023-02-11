@@ -4,9 +4,7 @@ import {
   constants,
   mkdir,
   writeFile,
-  createReadStream,
 } from "fs";
-import json2xls from "json2xls";
 import { Parser } from "@json2csv/plainjs";
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
@@ -577,31 +575,6 @@ export const contentPriceValidator = (
       `minimum price for this currency is ${minimumValue} ${name}`
     );
   return { price, currency };
-};
-
-export const toExcel = async (
-  data: Array<Record<string, any>>,
-  fileName: string,
-  fileDir?: string
-): Promise<Record<string, any>> => {
-  if (data.length === 0)
-    throw new ValidationError("File upload cannot be empty");
-  const headers = {
-    "Content-Type":
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "Content-Disposition": `attachment; filename='${fileName}'`,
-  };
-
-  const exportDoc = json2xls(data);
-
-  if (fileDir) {
-    writeFile(fileDir, exportDoc, (err) => {
-      if (err) devLog(err)
-      devLog("File saved to directory")
-    })
-  }
-
-  return { exportDoc, headers };
 };
 
 export const toCSV = async (
