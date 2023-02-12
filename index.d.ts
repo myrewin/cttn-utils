@@ -84,6 +84,7 @@ export declare const getContent: ({
   token,
   data,
 }: {
+
   url: string;
   method?: "GET" | "DELETE" | undefined;
   headers?: Record<string, any> | undefined;

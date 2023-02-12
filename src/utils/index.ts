@@ -586,7 +586,7 @@ export const toCSV = async (
     throw new ValidationError("File upload cannot be empty");
   const headers = {
     "Content-Type": "text/csv",
-    "Content-Disposition": `attachment; filename='${fileName}'`,
+    "Content-Disposition": `attachment; filename=${fileName}`,
   };
 
   const parser = new Parser();
@@ -621,7 +621,7 @@ export const toPDF = async (
 
   const headers = {
     "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename='${fileName}'`,
+    "Content-Disposition": `attachment; filename=${fileName}`,
   };
 
   pageTitle = pageTitle ? pageTitle : "Report";
