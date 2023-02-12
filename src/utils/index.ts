@@ -4,9 +4,7 @@ import {
   constants,
   mkdir,
   writeFile,
-  createReadStream,
 } from "fs";
-import json2xls from "json2xls";
 import { Parser } from "@json2csv/plainjs";
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
@@ -579,31 +577,6 @@ export const contentPriceValidator = (
   return { price, currency };
 };
 
-export const toExcel = async (
-  data: Array<Record<string, any>>,
-  fileName: string,
-  fileDir?: string
-): Promise<Record<string, any>> => {
-  if (data.length === 0)
-    throw new ValidationError("File upload cannot be empty");
-  const headers = {
-    "Content-Type":
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "Content-Disposition": `attachment; filename='${fileName}'`,
-  };
-
-  const exportDoc = json2xls(data);
-
-  if (fileDir) {
-    writeFile(fileDir, exportDoc, (err) => {
-      if (err) devLog(err)
-      devLog("File saved to directory")
-    })
-  }
-
-  return { exportDoc, headers };
-};
-
 export const toCSV = async (
   data: Array<Record<string, any>>,
   fileName: string,
@@ -613,7 +586,7 @@ export const toCSV = async (
     throw new ValidationError("File upload cannot be empty");
   const headers = {
     "Content-Type": "text/csv",
-    "Content-Disposition": `attachment; filename='${fileName}'`,
+    "Content-Disposition": `attachment; filename=${fileName}`,
   };
 
   const parser = new Parser();
@@ -648,7 +621,7 @@ export const toPDF = async (
 
   const headers = {
     "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename='${fileName}'`,
+    "Content-Disposition": `attachment; filename=${fileName}`,
   };
 
   pageTitle = pageTitle ? pageTitle : "Report";

@@ -84,6 +84,7 @@ export declare const getContent: ({
   token,
   data,
 }: {
+
   url: string;
   method?: "GET" | "DELETE" | undefined;
   headers?: Record<string, any> | undefined;
@@ -240,12 +241,6 @@ export declare const contentPriceValidator: (
   supportedCurrencies: Record<string, any>
 ) => Record<string, any>;
 
-export declare const toExcel: (
-  data: any,
-  fileName: string,
-  fileDir?: string
-) => Promise<Record<string, any>>;
-
 export declare const toCSV: (
   data: any,
   fileName: string,
@@ -264,5 +259,4 @@ export declare const toPDF: (
   }
 ) => Promise<Record<string, any>>;
 
-declare module 'json2xls';
 declare module '@json2csv/plainjs';
