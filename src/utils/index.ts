@@ -1,10 +1,4 @@
-import {
-  access,
-  unlink,
-  constants,
-  mkdir,
-  writeFile,
-} from "fs";
+import { access, unlink, constants, mkdir, writeFile } from "fs";
 import { Parser } from "@json2csv/plainjs";
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
@@ -16,9 +10,8 @@ import { v1 as uuidV1, validate as UUIDValidaton } from "uuid";
 
 import { ValidationError } from "../errors/index.js";
 import got from "got";
-import path from "path";
-import puppeteer, { PaperFormat } from "puppeteer";
 import moment from "moment";
+import pdf from "htmltopdf-node";
 
 export const CONTENT_GROUP = ["video", "audio", "document", "image", "others"];
 
@@ -267,7 +260,7 @@ export const getContent = async ({
     const result = await Axios(payload);
 
     return result.data;
-  } catch (err:any) {
+  } catch (err) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -300,7 +293,7 @@ export const postContent = async ({
     });
 
     return result.data;
-  } catch (err:any) {
+  } catch (err) {
     throw err.response
       ? { ...err.response.data, httpStatusCode: err.response.status } ||
           err.response
@@ -594,9 +587,9 @@ export const toCSV = async (
 
   if (fileDir) {
     writeFile(fileDir, exportDoc, (err) => {
-      if (err) devLog(err)
-      devLog("File saved to directory")
-    })
+      if (err) devLog(err);
+      devLog("File saved to directory");
+    });
   }
 
   return { exportDoc, headers };
@@ -609,8 +602,8 @@ export const toPDF = async (
     htmlTemplate?: string;
     fileDir?: string;
     pageTitle?: string;
-    orientation?: string;
-    paperSize?: PaperFormat;
+    orientation?: string | any;
+    paperSize?: string;
   }
 ): Promise<Record<string, any>> => {
   if (data.length === 0)
@@ -625,6 +618,7 @@ export const toPDF = async (
   };
 
   pageTitle = pageTitle ? pageTitle : "Report";
+  orientation = orientation ? orientation : "landscape";
 
   let table = `
   <html> 
@@ -674,25 +668,32 @@ export const toPDF = async (
   table += "</body></html>";
 
   const file = htmlTemplate ? htmlTemplate : table;
+  const exportDoc = await pdf.generatePdf(
+    { content: file },
+    {
+      format: paperSize,
+      landscape: orientation = "landscape" ? true : false,
+      printBackground:true
+    }
+  );
+  // const browser = await puppeteer.launch({
+  //   args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+  //   ignoreDefaultArgs: ["--disable-extensions"],
+  //   slowMo: 100
+  // });
+  // const page = await browser.newPage();
+  // await page.setContent(file, { waitUntil: "domcontentloaded" });
+  // await page.emulateMediaType("screen");
 
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
-    ignoreDefaultArgs: ["--disable-extensions"],
-    slowMo: 100
-  });
-  const page = await browser.newPage();
-  await page.setContent(file, { waitUntil: "domcontentloaded" });
-  await page.emulateMediaType("screen");
+  // const exportDoc = await page.pdf({
+  //   path: fileDir ? fileDir : "",
+  //   margin: { top: "20px", right: "10px", bottom: "20px", left: "10px" },
+  //   printBackground: true,
+  //   format: paperSize ? paperSize : "A4",
+  //   landscape: orientation === "landscape" ? true : false,
+  // });
 
-  const exportDoc = await page.pdf({
-    path: fileDir ? fileDir : "",
-    margin: { top: "20px", right: "10px", bottom: "20px", left: "10px" },
-    printBackground: true,
-    format: paperSize ? paperSize : "A4",
-    landscape: orientation === "landscape" ? true : false,
-  });
-
-  await browser.close();
+  //await browser.close();
 
   return { exportDoc, headers };
 };
