@@ -130,7 +130,8 @@ export const errorMessage = (err: any = void 0, ERROR_TYPE = "FATAL_ERROR") => {
         err.response.data instanceof ArrayBuffer
       ) {
         response.message =
-          JSON.parse(err?.response?.data.toString()).message ||
+          JSON.parse(err?.response?.data?.toString())?.message ||
+          err?.message ||
           "Something went wrong";
       } else {
         response.message =
@@ -151,7 +152,7 @@ export const errorMessage = (err: any = void 0, ERROR_TYPE = "FATAL_ERROR") => {
     return {
       success: false,
       message:
-        err?.response?.data.message || err?.message || "Something went wrong",
+        err?.response?.data?.message || err?.message || "Something went wrong",
       error: ERROR_TYPE,
       service: err.service || process.env.APP_NAME || process.env.SERVICE_NAME,
       httpStatusCode: 500,

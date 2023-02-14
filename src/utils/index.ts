@@ -675,7 +675,11 @@ export const toPDF = async (
 
   const file = htmlTemplate ? htmlTemplate : table;
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+    ignoreDefaultArgs: ["--disable-extensions"],
+    slowMo: 100
+  });
   const page = await browser.newPage();
   await page.setContent(file, { waitUntil: "domcontentloaded" });
   await page.emulateMediaType("screen");
