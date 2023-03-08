@@ -499,7 +499,7 @@ export const fileManager = {
       fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
     } else {
       fullPath =
-        "https://contentionary.s3.eu-west-3.amazonaws.com/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg";
+        `${process.env.AWS_S3_BASE_URL}/s3-2022/4/31/89f170b0-e18e-11ec-bf3f-4919075348fd.jpeg`;
     }
     return fullPath;
   },
