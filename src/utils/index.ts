@@ -493,7 +493,6 @@ export const fileManager = {
     if (urlToken.length > 1) return relativeUrl;
 
     const [prefix] = relativeUrl.split("-");
-    const format = fileManager.getFileFormat(relativeUrl);
     let fullPath = "Invalid";
     if (prefix === "s3") {
       fullPath = `${process.env.AWS_S3_BASE_URL}/${relativeUrl}`;
