@@ -1,6 +1,6 @@
 {
   "name": "@myrewin/cttn-utils",
-  "version": "1.1.50",
+  "version": "1.1.51",
   "description": "Utility tools for all cttn micro services",
   "type": "module",
   "main": "dist/index.js",
