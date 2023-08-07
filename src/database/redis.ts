@@ -67,6 +67,13 @@ export class Redis {
     return Boolean(await this.client.del(key));
   }
 
+  async deleteAll(prefix: string): Promise<void> {
+    const keys = await this.keys(prefix);
+    for (const key of keys) {
+      await this.delete(key);
+    }
+  }
+
   async getCachedUser(id: string, throwError = true): Promise<any> {
     let userToken = `${id}-token`;
     const user = await this.client.get(userToken);
