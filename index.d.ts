@@ -226,6 +226,7 @@ export declare class Redis {
   setEx(key: string, data: any, duration: number | string): Promise<any>;
   get(key: string, parse?: boolean): Promise<any>;
   delete(key: string): Promise<boolean>;
+  deleteAll(prefix: string): Promise<void>;
   getCachedUser(id: string, throwError?: boolean): Promise<any>;
   cacheUser(user: any): Promise<void>;
   updateAuthData(
