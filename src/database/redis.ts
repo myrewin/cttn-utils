@@ -18,6 +18,10 @@ export class Redis {
     await this.client.disconnect();
   }
 
+  async keys(pattern:string):Promise<Array<string>|any> {
+    return await this.client.keys(pattern)
+  }
+
   async set(key: string, data: any): Promise<any> {
     if (!key || typeof key !== "string")
       throw new ValidationError("Redis key must be a string");

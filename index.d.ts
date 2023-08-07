@@ -221,6 +221,7 @@ export declare class Redis {
   constructor(url: string);
   start(): Promise<void>;
   disconnect(): Promise<void>;
+  keys(pattern: string): Promise<Array<string>|any>;
   set(key: string, data: any): Promise<any>;
   setEx(key: string, data: any, duration: number | string): Promise<any>;
   get(key: string, parse?: boolean): Promise<any>;
